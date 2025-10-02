@@ -50,7 +50,8 @@ class AdminController extends Controller
             )
             ->where('created_at', '>=', Carbon::now()->subMonths(6))
             ->groupBy('year', 'month')
-            ->orderBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
             ->get();
 
         // Navettes en attente de validation

@@ -406,7 +406,7 @@
                                                     @foreach($recentReservations as $reservation)
                                                     <tr>
                                                         <td>
-                                                            <small>{{ $reservation->user->name }}</small>
+                                                            <small>{{ optional($reservation->user)->name ?? 'Utilisateur supprimé' }}</small>
                                                         </td>
                                                         <td>
                                                             <small>{{ $reservation->navette->departure }} → {{ $reservation->navette->destination }}</small>

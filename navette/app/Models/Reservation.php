@@ -32,4 +32,9 @@ class Reservation extends Model
         return $this->belongsTo(Navette::class, 'navette_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 }

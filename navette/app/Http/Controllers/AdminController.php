@@ -136,6 +136,85 @@ class AdminController extends Controller
     }
 
     /**
+     * Mettre à jour un utilisateur (admin)
+     */
+    public function updateUser(Request $request, $id)
+    {
+        $current = Auth::user();
+        if ($current->role !== 'ADMIN') {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'contactdetails' => ['nullable', 'string', 'max:255'],
+            'place' => ['nullable', 'string', 'max:255'],
+            'role' => ['required', 'in:USER,AGENCE,ADMIN'],
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update($validated);
+
+        return redirect()->back()->with('success', 'Utilisateur mis à jour.');
+    }
+
+    /**
+     * Supprimer un utilisateur (admin)
+     */
+    public function destroyUser($id)
+    {
+        $current = Auth::user();
+        if ($current->role !== 'ADMIN') {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->back()->with('success', 'Utilisateur supprimé.');
+    }
+
+    /**
+     * Mettre à jour une agence (admin)
+     */
+    public function updateAgency(Request $request, $id)
+    {
+        $current = Auth::user();
+        if ($current->role !== 'ADMIN') {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'place' => ['nullable', 'string', 'max:255'],
+            'contactdetails' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $agency = User::where('role', 'AGENCE')->findOrFail($id);
+        $agency->update($validated);
+
+        return redirect()->back()->with('success', 'Agence mise à jour.');
+    }
+
+    /**
+     * Supprimer une agence (admin)
+     */
+    public function destroyAgency($id)
+    {
+        $current = Auth::user();
+        if ($current->role !== 'ADMIN') {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        $agency = User::where('role', 'AGENCE')->findOrFail($id);
+        $agency->delete();
+
+        return redirect()->back()->with('success', 'Agence supprimée.');
+    }
+
+    /**
      * Valider une agence
      */
     public function approveAgency($id)

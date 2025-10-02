@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réservation - {{ $navette->departure }} vers {{ $navette->destination }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -27,7 +28,7 @@
             padding: 2rem;
         }
         .price-display {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 1.5rem;
             border-radius: 15px;
@@ -99,6 +100,38 @@
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ route('search.index') }}">
+                <i class="fas fa-car text-primary me-2"></i>
+                Covoiturage Navette
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ route('search.index') }}">
+                    <i class="fas fa-search me-1"></i>
+                    Nouvelle recherche
+                </a>
+                @auth
+                    @if(Auth::user()->role === 'ADMIN')
+                        <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Admin
+                        </a>
+                    @endif
+                    <a class="nav-link" href="{{ route('logout') }}">
+                        <i class="fas fa-sign-out-alt me-1"></i>
+                        Déconnexion
+                    </a>
+                @else
+                    <a class="nav-link" href="{{ route('login') }}">
+                        <i class="fas fa-sign-in-alt me-1"></i>
+                        Connexion
+                    </a>
+                @endauth
+            </div>
+        </div>
+    </nav>
     <div class="reservation-container">
         <div class="container">
             <div class="row justify-content-center">
@@ -298,14 +331,26 @@
     <script>
         let passengerCount = 1;
         const maxPassengers = {{ $availableSeats }};
-        const basePrice = {{ $navette->price_per_person }};
-        const discountPercentage = {{ $navette->discount_percentage ?? 0 }};
+        const pricePerPerson = Number({{ $navette->price_per_person }});
+        const vehiclePrice = Number({{ $navette->vehicle_price ?? 0 }});
+        const brandPrice = Number({{ $navette->brand_price ?? 0 }});
+        const discountPercentage = Number({{ $navette->discount_percentage ?? 0 }});
         const isSpecialOffer = {{ $navette->is_special_offer ? 'true' : 'false' }};
+
+        function updateCounterButtons() {
+            const minusBtn = document.querySelector('.counter-btn:nth-of-type(1)');
+            const plusBtn = document.querySelector('.counter-btn:nth-of-type(2)');
+            if (minusBtn && plusBtn) {
+                minusBtn.disabled = passengerCount <= 1;
+                plusBtn.disabled = passengerCount >= maxPassengers;
+            }
+        }
 
         function updatePassengerCount() {
             document.getElementById('passengerCount').textContent = passengerCount;
             document.getElementById('passengerCountInput').value = passengerCount;
             updatePrice();
+            updateCounterButtons();
         }
 
         function increasePassengers() {
@@ -323,26 +368,27 @@
         }
 
         function updatePrice() {
-            let totalPrice = basePrice * passengerCount;
-            
+            const baseUnitPrice = pricePerPerson + vehiclePrice + brandPrice;
+            let totalPrice = baseUnitPrice * passengerCount;
+
             if (isSpecialOffer && discountPercentage > 0) {
                 const discount = totalPrice * (discountPercentage / 100);
                 totalPrice = totalPrice - discount;
             }
 
             document.getElementById('totalPrice').textContent = totalPrice.toFixed(2) + ' €';
-            
+
             const breakdown = passengerCount === 1 ? '1 passager' : passengerCount + ' passagers';
             if (isSpecialOffer && discountPercentage > 0) {
-                document.getElementById('priceBreakdown').textContent = 
+                document.getElementById('priceBreakdown').textContent =
                     breakdown + ' (remise -' + discountPercentage + '%)';
             } else {
                 document.getElementById('priceBreakdown').textContent = breakdown;
             }
         }
 
-        // Initialiser le prix
-        updatePrice();
+        // Initialiser le prix et l'état des boutons
+        updatePassengerCount();
     </script>
 </body>
 </html>

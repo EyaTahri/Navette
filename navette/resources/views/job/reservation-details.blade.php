@@ -91,6 +91,38 @@
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ route('search.index') }}">
+                <i class="fas fa-car text-primary me-2"></i>
+                Covoiturage Navette
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ route('search.index') }}">
+                    <i class="fas fa-search me-1"></i>
+                    Nouvelle recherche
+                </a>
+                @auth
+                    @if(Auth::user()->role === 'ADMIN')
+                        <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Admin
+                        </a>
+                    @endif
+                    <a class="nav-link" href="{{ route('logout') }}">
+                        <i class="fas fa-sign-out-alt me-1"></i>
+                        Déconnexion
+                    </a>
+                @else
+                    <a class="nav-link" href="{{ route('login') }}">
+                        <i class="fas fa-sign-in-alt me-1"></i>
+                        Connexion
+                    </a>
+                @endauth
+            </div>
+        </div>
+    </nav>
     <div class="details-container">
         <div class="container">
             <div class="row justify-content-center">

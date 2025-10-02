@@ -105,6 +105,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/agencies', [AdminController::class, 'agencies'])->name('agencies');
         Route::post('/agencies/{id}/approve', [AdminController::class, 'approveAgency'])->name('approveAgency');
         Route::post('/agencies/{id}/reject', [AdminController::class, 'rejectAgency'])->name('rejectAgency');
+        Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+        Route::put('/agencies/{id}', [AdminController::class, 'updateAgency'])->name('agencies.update');
+        Route::delete('/agencies/{id}', [AdminController::class, 'destroyAgency'])->name('agencies.destroy');
         Route::get('/navettes', [AdminController::class, 'navettes'])->name('navettes');
         Route::get('/reservations', [AdminController::class, 'reservations'])->name('reservations');
         Route::get('/vehicles', [AdminController::class, 'vehicles'])->name('vehicles');

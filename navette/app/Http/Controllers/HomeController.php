@@ -2,16 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Log;
 use App\Models\Navette;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use Exception;
 
-class HomeController extends Controller{
-    public function index()
+class HomeController extends Controller
+{
+    /**
+     * Show the home page using the same design as /search
+     */
+    public function index(Request $request)
     {
-        $navettes = Navette::all();
-        return view('job.index', compact('navettes'));
+        $popularDestinations = Navette::select(['departure', 'destination'])
+            ->groupBy('departure', 'destination')
+            ->limit(8)
+            ->get();
+
+        $specialOffers = Navette::where('is_special_offer', true)
+            ->latest('created_at')
+            ->limit(6)
+            ->get();
+
+        return view('job.search', compact('popularDestinations', 'specialOffers'));
     }
 }

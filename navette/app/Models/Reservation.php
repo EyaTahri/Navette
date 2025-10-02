@@ -12,8 +12,18 @@ class Reservation extends Model
     protected $fillable = [
         'user_id',
         'navette_id',
+        'passenger_count',
+        'contact_phone',
+        'special_requests',
         'status',
-        'total_price'
+        'total_price',
+        'payment_status',
+        'payment_method'
+    ];
+
+    protected $casts = [
+        'passenger_count' => 'integer',
+        'total_price' => 'decimal:2',
     ];
 
     // Reservation.php

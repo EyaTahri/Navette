@@ -42,11 +42,17 @@ class NavetteController extends Controller
                 'destination' => 'required|string|max:255',
                 'departure' => 'required|string|max:255',
                 'arrival' => 'required|string|max:255',
+                'departure_datetime' => 'nullable|date',
+                'arrival_datetime' => 'nullable|date|after:departure_datetime',
                 'vehicle_type' => 'required|string|max:255',
                 'brand' => 'required|string|max:255',
                 'price_per_person' => 'required|numeric|min:0',
                 'vehicle_price' => 'required|numeric|min:0',
                 'brand_price' => 'required|numeric|min:0',
+                'capacity' => 'required|integer|min:1',
+                'description' => 'nullable|string',
+                'is_special_offer' => 'boolean',
+                'discount_percentage' => 'nullable|numeric|min:0|max:100',
                 'special' => 'nullable|numeric|min:0',
             ]);
             $validatedData['creator'] = Auth::id(); // Get the authenticated user's ID
@@ -58,7 +64,7 @@ class NavetteController extends Controller
             $totalPrice = $navette->price_per_person + $navette->vehicle_price + $navette->brand_price;
 
             // Return a successful response
-            return redirect()->route('create_navette'); // Change 'creetenav' to the appropriate route name
+            return redirect()->route('create_navette')->with('success', 'Navette créée avec succès');
 
         } catch (ValidationException $e) {
             // Log the validation errors

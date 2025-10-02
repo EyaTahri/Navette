@@ -15,12 +15,17 @@ class CreateReservationsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id'); // Foreign key for the user
             $table->unsignedBigInteger('navette_id'); // Foreign key for the navette
-            $table->boolean('status')->nullable()->default(null); // Nullable boolean field with default null
+            $table->integer('passenger_count')->default(1); // Number of passengers
+            $table->string('contact_phone')->nullable(); // Contact phone number
+            $table->text('special_requests')->nullable(); // Special requests or notes
+            $table->enum('status', ['pending', 'confirmed', 'cancelled'])->default('pending'); // Reservation status
+            $table->decimal('total_price', 8, 2); // Add the total_price field
+            $table->string('payment_status')->default('pending'); // Payment status
+            $table->string('payment_method')->nullable(); // Payment method used
             
             // Foreign key constraints
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('navette_id')->references('id')->on('navettes')->onDelete('cascade');
-            $table->decimal('total_price', 8, 2); // Add the total_price field
 
             $table->timestamps();
         });

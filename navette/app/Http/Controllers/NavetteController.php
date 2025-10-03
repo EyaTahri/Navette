@@ -153,14 +153,13 @@ class NavetteController extends Controller
     }
         
 
-public function destroy($id)
-{
-    $navette = Navette::findOrFail($id);
-    $navette->delete();
+    public function destroy($id)
+    {
+        $navette = Navette::findOrFail($id);
+        $navette->delete();
 
-    return redirect()->route('navettes.index')->with('success', 'Navette deleted successfully');
-}
-}
+        return redirect()->route('navettes.index')->with('success', 'Navette deleted successfully');
+    }
 
     /**
      * Liste des offres de l'agence
@@ -199,3 +198,4 @@ public function destroy($id)
         $navette->save();
         return redirect()->back()->with('success', 'Offre retirée.');
     }
+}

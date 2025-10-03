@@ -69,13 +69,25 @@ class ReservationController extends Controller
         $insertData = [
             'user_id' => Auth::id(),
             'navette_id' => $validatedData['navette_id'],
-            'contact_phone' => $validatedData['contact_phone'],
-            'special_requests' => $validatedData['special_requests'],
-            'total_price' => $totalPrice,
-            'payment_method' => $validatedData['payment_method'],
-            'status' => 'pending',
-            'payment_status' => 'pending',
         ];
+        if (Schema::hasColumn('reservations', 'contact_phone')) {
+            $insertData['contact_phone'] = $validatedData['contact_phone'];
+        }
+        if (Schema::hasColumn('reservations', 'special_requests')) {
+            $insertData['special_requests'] = $validatedData['special_requests'];
+        }
+        if (Schema::hasColumn('reservations', 'total_price')) {
+            $insertData['total_price'] = $totalPrice;
+        }
+        if (Schema::hasColumn('reservations', 'payment_method')) {
+            $insertData['payment_method'] = $validatedData['payment_method'];
+        }
+        if (Schema::hasColumn('reservations', 'status')) {
+            $insertData['status'] = 'pending';
+        }
+        if (Schema::hasColumn('reservations', 'payment_status')) {
+            $insertData['payment_status'] = 'pending';
+        }
         // Éviter l'erreur si la colonne n'existe pas encore
         if (Schema::hasColumn('reservations', 'passenger_count')) {
             $insertData['passenger_count'] = $validatedData['passenger_count'];

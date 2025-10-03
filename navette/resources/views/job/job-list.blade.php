@@ -10,6 +10,7 @@
     .hero{background:linear-gradient(135deg,rgba(102,126,234,.9),rgba(118,75,162,.9));padding:2rem 0;margin-bottom:1.5rem;color:#fff}
     .card-box{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:1rem}
     .status-badge{border-radius:20px;padding:.35rem .75rem;font-weight:600}
+    .action-btn{display:inline-flex;align-items:center;gap:.35rem;border-radius:8px}
   </style>
 </head>
 <body>
@@ -32,6 +33,7 @@
               <th>Date</th>
               <th>Prix</th>
               <th>Statut</th>
+              <th class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -45,16 +47,21 @@
                   <span class="status-badge bg-{{ $reservation->status==='confirmed'?'success':($reservation->status==='cancelled'?'danger':'secondary') }} text-white">
                     {{ ucfirst($reservation->status) }}
                   </span>
+                </td>
+                <td class="text-end">
                   @if($reservation->status === 'pending')
-                    <small class="ms-2">
-                      <a href="{{ route('reservation.user.edit', $reservation->id) }}">modifier</a>
-                      |
-                      <form action="{{ route('reservation.user.destroy', $reservation->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer cette réservation ?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-link p-0 align-baseline">supprimer</button>
-                      </form>
-                    </small>
+                    <a href="{{ route('reservation.user.edit', $reservation->id) }}" class="btn btn-sm btn-primary action-btn">
+                      <i class="fas fa-edit"></i><span>Modifier</span>
+                    </a>
+                    <form action="{{ route('reservation.user.destroy', $reservation->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer cette réservation ?')">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="btn btn-sm btn-danger action-btn">
+                        <i class="fas fa-trash"></i><span>Supprimer</span>
+                      </button>
+                    </form>
+                  @else
+                    <small class="text-muted">—</small>
                   @endif
                 </td>
               </tr>

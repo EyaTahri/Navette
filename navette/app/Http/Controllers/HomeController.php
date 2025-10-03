@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Navette;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -12,6 +13,11 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        // Redirect agencies to their offers dashboard
+        if (Auth::check() && Auth::user()->role === 'AGENCE') {
+            return redirect()->route('agency.offers.index');
+        }
+
         $popularDestinations = Navette::select(['departure', 'destination'])
             ->groupBy('departure', 'destination')
             ->limit(8)

@@ -22,11 +22,16 @@ class NavetteController extends Controller
     
     public function indexReservations()
     {
+        // If agency, redirect to the agency reservations list
+        if (Auth::check() && Auth::user()->role === 'AGENCE') {
+            return redirect()->route('agency.reservations.index');
+        }
+
         // Fetch reservations for the authenticated user and eager load the navette relationship
         $reservations = Reservation::with('navette')->where('user_id', Auth::id())->get();
-    
+
         // Pass only the reservations to the view
-        return view('job.job-list', compact('reservations')); // Adjust the view name as needed
+        return view('job.job-list', compact('reservations'));
     }
     
     

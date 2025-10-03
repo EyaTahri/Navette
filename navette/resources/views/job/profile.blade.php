@@ -33,54 +33,7 @@
 
 <body>
     <div class="container-xxl bg-white p-0">
-        <!-- Navbar Start -->
-        <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
-            <a href="{{ route('home') }}" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
-                <h1 class="m-0 text-primary">Navette</h1>
-            </a>
-            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-            <div class="navbar-nav ms-auto p-4 p-lg-0">
-            <!-- Links for USER role -->
-            @if(Auth::check() && Auth::user()->role === 'USER')
-                <a href="{{ route('home') }}" class="nav-item nav-link ">Accueil</a>
-                <a href="{{ route('about') }}" class="nav-item nav-link">About</a>
-                <a href="{{ route('navettes.reservations') }}" class="nav-item nav-link">Réservation</a>
-                <a href="{{ route('contact') }}" class="nav-item nav-link">Contact</a>
-                <a href="{{ route('profile') }}"class="nav-item nav-link active">Profile</a>
-            @endif
-
-            <!-- Links for ADMIN role -->
-            @if(Auth::check() && Auth::user()->role === 'ADMIN')
-                <a href="{{ route('home') }}" class="nav-item nav-link ">Accueil</a>
-                <a href="{{ route('profile') }}"class="nav-item nav-link active ">Profile</a>
-                
-            @endif
-            
-            <!-- Links for AGENCE role -->
-            @if(Auth::check() && Auth::user()->role === 'AGENCE')
-                
-                <a href="{{ route('profile') }}"class="nav-item nav-link ">Profile</a>
-                <a href="{{ route('create_navette') }}"class="nav-item nav-link ">Créer navette</a>
-                <a href="{{ route('navettes.index') }}"class="nav-item nav-link ">Gérer navette</a>
-                    
-                
-            @endif
-        </div>
-
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-
-                <a href="#" class="btn btn-primary rounded-0 py-4 px-lg-5 d-none d-lg-block" 
-                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                   Log Out<i class="fa fa-arrow-right ms-3"></i>
-                </a>
-            </div>
-        </nav>
-        <!-- Navbar End -->
+        @include('job.partials.navbar')
 
         <!-- Profile Start -->
         <div class="container-xxl py-5">
@@ -155,9 +108,12 @@
 
 
         
-<div class="container-xxl py-5">
+<div class="container-xxl py-5" style="background: linear-gradient(135deg, rgba(102,126,234,0.06), rgba(118,75,162,0.06));">
     <div class="container">
-        <h1 class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Navettes disponibles</h1>
+        <div class="hero py-3 mb-3">
+            <h1 class="h3"><i class="fas fa-user me-2"></i>Mon profil</h1>
+        </div>
+        <h2 class="mb-4">Navettes disponibles</h2>
         <div class="tab-class text-center wow fadeInUp" data-wow-delay="0.3s">
             <div class="tab-content">
                 <div class="container-xxl py-5">

@@ -135,6 +135,14 @@
                             Admin
                         </a>
                     @endif
+                    <a class="nav-link" href="{{ route('navettes.reservations') }}">
+                        <i class="fas fa-calendar-check me-1"></i>
+                        Réservation
+                    </a>
+                    <a class="nav-link" href="{{ route('profile') }}">
+                        <i class="fas fa-user me-1"></i>
+                        Profil
+                    </a>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                         @csrf
                     </form>

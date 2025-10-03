@@ -366,6 +366,62 @@
         </div>
     </div>
 
+    @auth
+    @if(isset($availableNavettes) && $availableNavettes->count() > 0)
+    <!-- Réservation rapide -->
+    <div class="container mb-5">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-bolt text-warning me-2"></i>
+            Réservation rapide
+        </h2>
+        <div class="card">
+            <div class="card-body">
+                <form action="{{ route('reservation.store') }}" method="POST" class="row g-3 align-items-end">
+                    @csrf
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Choisir un trajet</label>
+                        <select name="navette_id" class="form-select" required>
+                            @foreach($availableNavettes as $n)
+                              <option value="{{ $n->id }}">
+                                {{ $n->departure }} → {{ $n->destination }}
+                                {{ $n->departure_datetime ? ' - '. $n->departure_datetime->format('d/m H:i') : '' }}
+                              </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Passagers</label>
+                        <input type="number" name="passenger_count" class="form-control" value="1" min="1" max="20" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Téléphone</label>
+                        <input type="text" name="contact_phone" class="form-control" value="{{ Auth::user()->contactdetails ?? '' }}" placeholder="06 12 34 56 78" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Demandes spéciales</label>
+                        <textarea name="special_requests" class="form-control" rows="2" placeholder="Optionnel"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Paiement</label>
+                        <select name="payment_method" class="form-select" required>
+                            <option value="cash">Espèces</option>
+                            <option value="card">Carte bancaire</option>
+                            <option value="paypal">PayPal</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8 text-end">
+                        <button class="btn btn-search btn-lg" type="submit">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Réserver maintenant
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endif
+    @endauth
+
     <!-- Special Offers -->
     @if($specialOffers->count() > 0)
     <div class="container mb-5">

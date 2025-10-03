@@ -22,6 +22,15 @@ class HomeController extends Controller
             ->limit(6)
             ->get();
 
-        return view('job.search', compact('popularDestinations', 'specialOffers'));
+        // Navettes disponibles pour réservation rapide (home seulement)
+        $availableNavettes = Navette::where('accepted', true)
+            ->orderBy('departure_datetime', 'asc')
+            ->limit(25)
+            ->get([
+                'id', 'departure', 'destination', 'departure_datetime',
+                'vehicle_type', 'brand', 'capacity', 'price_per_person'
+            ]);
+
+        return view('job.search', compact('popularDestinations', 'specialOffers', 'availableNavettes'));
     }
 }

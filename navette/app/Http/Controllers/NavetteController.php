@@ -161,3 +161,41 @@ public function destroy($id)
     return redirect()->route('navettes.index')->with('success', 'Navette deleted successfully');
 }
 }
+
+    /**
+     * Liste des offres de l'agence
+     */
+    public function offersIndex()
+    {
+        $navettes = Navette::where('creator', auth()->id())
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('job.agency.offers.index', compact('navettes'));
+    }
+
+    /**
+     * Publier une offre spéciale
+     */
+    public function publishOffer($id)
+    {
+        $navette = Navette::where('creator', auth()->id())->findOrFail($id);
+        $navette->is_special_offer = true;
+        if (request()->has('discount_percentage')) {
+            $navette->discount_percentage = max(0, min(100, (int) request('discount_percentage')));
+        }
+        $navette->save();
+        return redirect()->back()->with('success', 'Offre publiée.');
+    }
+
+    /**
+     * Retirer une offre spéciale
+     */
+    public function removeOffer($id)
+    {
+        $navette = Navette::where('creator', auth()->id())->findOrFail($id);
+        $navette->is_special_offer = false;
+        $navette->discount_percentage = null;
+        $navette->save();
+        return redirect()->back()->with('success', 'Offre retirée.');
+    }

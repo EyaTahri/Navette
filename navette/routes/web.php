@@ -88,6 +88,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/reservations/{id}/edit', [ReservationController::class, 'agencyEdit'])->name('reservations.edit');
         Route::put('/reservations/{id}', [ReservationController::class, 'agencyUpdate'])->name('reservations.update');
         Route::delete('/reservations/{id}', [ReservationController::class, 'agencyDestroy'])->name('reservations.destroy');
+
+        // Offers management for agencies
+        Route::get('/offers', [NavetteController::class, 'offersIndex'])->name('offers.index');
+        Route::post('/offers/{id}/publish', [NavetteController::class, 'publishOffer'])->name('offers.publish');
+        Route::post('/offers/{id}/remove', [NavetteController::class, 'removeOffer'])->name('offers.remove');
     });
     // Routes de réservation améliorées
     Route::get('/reservation/create/{id}', [ReservationController::class, 'create'])->name('reservation.create');

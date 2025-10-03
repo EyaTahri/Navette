@@ -29,6 +29,13 @@
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+      .hero{background:linear-gradient(135deg,rgba(102,126,234,.9),rgba(118,75,162,.9));padding:1.25rem 0;color:#fff;border-radius:12px}
+      .card-box{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:1rem;margin-bottom:1.25rem}
+      .status-badge{border-radius:20px;padding:.35rem .75rem;font-weight:600}
+      .action-btn{display:inline-flex;align-items:center;gap:.35rem;border-radius:8px}
+    </style>
 </head>
 
 <body>
@@ -39,6 +46,7 @@
         <div class="container-xxl py-5">
             <div class="container">
                 <!-- <h1 class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Profile</h1> -->
+                <div class="card-box">
                 <div class="row g-4">
                     <div class="col-12">
                         <div class="row gy-4">
@@ -100,6 +108,7 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </div>
         <!-- Profile End -->
@@ -114,6 +123,7 @@
             <h1 class="h3"><i class="fas fa-user me-2"></i>Mon profil</h1>
         </div>
         <h2 class="mb-4">Navettes disponibles</h2>
+        <div class="card-box">
         <div class="tab-class text-center wow fadeInUp" data-wow-delay="0.3s">
             <div class="tab-content">
                 <div class="container-xxl py-5">
@@ -164,12 +174,15 @@
             </div>
             <div class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center">
                 <div class="d-flex mb-3">
-                    <a class="btn btn-primary" href="{{ route('reservation.create', $navette->id) }}">Réserver</a>
+                    <a class="btn btn-primary action-btn" href="{{ route('reservation.create', $navette->id) }}">
+                      <i class="fas fa-calendar-plus"></i><span>Réserver</span>
+                    </a>
                 </div>
                 <small class="text-truncate">
                     <i class="far fa-calendar-alt text-primary me-2"></i>Date Line: 01 Jan, 2045
                 </small>
             </div>
+        </div>
         </div>
     </div>
 @endforeach

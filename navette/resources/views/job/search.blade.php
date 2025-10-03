@@ -169,10 +169,12 @@
                             <i class="fas fa-search me-2"></i>
                             Rechercher maintenant
                         </a>
+                        @guest
                         <a href="{{ route('login') }}" class="btn btn-outline-light btn-lg">
                             <i class="fas fa-user-plus me-2"></i>
                             S'inscrire
                         </a>
+                        @endguest
                     </div>
                 </div>
                 <div class="col-lg-6 text-center">

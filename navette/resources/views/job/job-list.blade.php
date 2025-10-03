@@ -58,6 +58,17 @@
                   <span class="status-badge bg-{{ $reservation->status==='confirmed'?'success':($reservation->status==='cancelled'?'danger':'secondary') }} text-white">
                     {{ ucfirst($reservation->status) }}
                   </span>
+                  @if($reservation->status === 'pending')
+                    <small class="ms-2">
+                      <a href="{{ route('reservation.user.edit', $reservation->id) }}">modifier</a>
+                      |
+                      <form action="{{ route('reservation.user.destroy', $reservation->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer cette réservation ?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-link p-0 align-baseline">supprimer</button>
+                      </form>
+                    </small>
+                  @endif
                 </td>
               </tr>
             @endforeach

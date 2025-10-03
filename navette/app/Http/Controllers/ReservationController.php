@@ -6,6 +6,7 @@ use App\Models\Reservation;
 use App\Models\Navette;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
@@ -65,17 +66,22 @@ class ReservationController extends Controller
         Log::info('Total price calculated', ['total_price' => $totalPrice]);
 
         // Créer la réservation
-        $reservation = Reservation::create([
+        $insertData = [
             'user_id' => Auth::id(),
             'navette_id' => $validatedData['navette_id'],
-            'passenger_count' => $validatedData['passenger_count'],
             'contact_phone' => $validatedData['contact_phone'],
             'special_requests' => $validatedData['special_requests'],
             'total_price' => $totalPrice,
             'payment_method' => $validatedData['payment_method'],
             'status' => 'pending',
             'payment_status' => 'pending',
-        ]);
+        ];
+        // Éviter l'erreur si la colonne n'existe pas encore
+        if (Schema::hasColumn('reservations', 'passenger_count')) {
+            $insertData['passenger_count'] = $validatedData['passenger_count'];
+        }
+
+        $reservation = Reservation::create($insertData);
 
         Log::info('Reservation created', ['reservation_id' => $reservation->id]);
 

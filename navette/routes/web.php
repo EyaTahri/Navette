@@ -48,10 +48,13 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/registerAgence', [AuthController::class, 'registerAgence'])->name('registerAgence');
 
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
+// Logout via POST (session-based)
+// Moved inside auth group below
 
 // Protected routes that require authentication
 Route::group(['middleware' => 'auth'], function () {
+    // Logout (POST)
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::put('/user/{id}', [AuthController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/user/{id}', [AuthController::class, 'delete'])->middleware('auth:sanctum');
     Route::get('/home', [HomeController::class, 'index'])->name('home');

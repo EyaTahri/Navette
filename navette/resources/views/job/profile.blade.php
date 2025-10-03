@@ -157,7 +157,7 @@
         
 <div class="container-xxl py-5">
     <div class="container">
-        <h1 class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Tous les navettes</h1>
+        <h1 class="text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Navettes disponibles</h1>
         <div class="tab-class text-center wow fadeInUp" data-wow-delay="0.3s">
             <div class="tab-content">
                 <div class="container-xxl py-5">
@@ -208,18 +208,7 @@
             </div>
             <div class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center">
                 <div class="d-flex mb-3">
-                    <form action="{{ route('navettes.accept', $navette->id) }}" method="POST" class="me-2">
-                        @csrf
-                        @if($navette->accepted  !== 1)
-                        <button type="submit" class="btn btn-success">Accepter</button>
-                        @endif
-                    </form>
-                    <form action="{{ route('navettes.refuse', $navette->id) }}" method="POST">
-                        @csrf
-                        @if($navette->accepted  !== 0)
-                        <button type="submit" class="btn btn-danger">Rejeter</button>
-                        @endif
-                    </form>
+                    <a class="btn btn-primary" href="{{ route('reservation.create', $navette->id) }}">Réserver</a>
                 </div>
                 <small class="text-truncate">
                     <i class="far fa-calendar-alt text-primary me-2"></i>Date Line: 01 Jan, 2045
@@ -240,6 +229,97 @@
 </div>
 
 
+
+<hr class="my-5">
+
+<div class="container-xxl py-5">
+  <div class="container">
+    <h2 class="mb-4">Mon historique de réservations</h2>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Trajet</th>
+            <th>Date</th>
+            <th>Passagers</th>
+            <th>Prix</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($reservations as $reservation)
+          <tr>
+            <td>{{ $reservation->id }}</td>
+            <td>{{ $reservation->navette->departure }} → {{ $reservation->navette->destination }}</td>
+            <td>{{ $reservation->created_at->format('d/m/Y H:i') }}</td>
+            <td>{{ $reservation->passenger_count }}</td>
+            <td>{{ number_format($reservation->total_price, 2) }} €</td>
+            <td>{{ ucfirst($reservation->status) }}</td>
+          </tr>
+          @empty
+          <tr>
+            <td colspan="6" class="text-center text-muted">Aucune réservation</td>
+          </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<hr class="my-5">
+
+<div class="container-xxl py-5">
+  <div class="container">
+    <h2 class="mb-4">Mes navettes (brouillons)</h2>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Trajet</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse($myNavettes as $n)
+          <tr>
+            <td>{{ $n->id }}</td>
+            <td>{{ $n->departure }} → {{ $n->destination }}</td>
+            <td>
+              @if(is_null($n->accepted))
+                <span class="badge bg-warning text-dark">En attente</span>
+              @elseif($n->accepted)
+                <span class="badge bg-success">Acceptée</span>
+              @else
+                <span class="badge bg-danger">Refusée</span>
+              @endif
+            </td>
+            <td>
+              <div class="d-flex gap-2">
+                @if(is_null($n->accepted))
+                  <a href="{{ route('edit_navette', $n->id) }}" class="btn btn-sm btn-primary">Modifier</a>
+                  <form action="{{ route('delete_navette', $n->id) }}" method="POST" onsubmit="return confirm('Supprimer cette navette ?')">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-sm btn-danger">Supprimer</button>
+                  </form>
+                @else
+                  <small class="text-muted">Modification/suppression indisponible</small>
+                @endif
+              </div>
+            </td>
+          </tr>
+          @empty
+          <tr><td colspan="4" class="text-center text-muted">Aucune navette</td></tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <!-- Contact Modal -->
 <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">

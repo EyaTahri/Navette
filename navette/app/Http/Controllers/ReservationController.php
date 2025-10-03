@@ -216,4 +216,95 @@ class ReservationController extends Controller
             'is_special_offer' => $navette->is_special_offer,
         ]);
     }
+
+    /**
+     * Liste des réservations pour l'agence connectée
+     */
+    public function agencyIndex()
+    {
+        if (Auth::user()->role !== 'AGENCE') {
+            abort(403);
+        }
+
+        $reservations = Reservation::with(['navette', 'user'])
+            ->whereHas('navette', function ($q) {
+                $q->where('creator', Auth::id());
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('job.agency.reservations.index', compact('reservations'));
+    }
+
+    /**
+     * Formulaire d'édition d'une réservation (par l'agence)
+     */
+    public function agencyEdit($id)
+    {
+        if (Auth::user()->role !== 'AGENCE') {
+            abort(403);
+        }
+
+        $reservation = Reservation::with(['navette', 'user'])
+            ->whereHas('navette', function ($q) {
+                $q->where('creator', Auth::id());
+            })
+            ->findOrFail($id);
+
+        return view('job.agency.reservations.edit', compact('reservation'));
+    }
+
+    /**
+     * Mise à jour d'une réservation (par l'agence)
+     */
+    public function agencyUpdate(Request $request, $id)
+    {
+        if (Auth::user()->role !== 'AGENCE') {
+            abort(403);
+        }
+
+        $reservation = Reservation::whereHas('navette', function ($q) {
+                $q->where('creator', Auth::id());
+            })
+            ->findOrFail($id);
+
+        $validated = $request->validate([
+            'passenger_count' => 'required|integer|min:1|max:20',
+            'contact_phone' => 'required|string|max:20',
+            'special_requests' => 'nullable|string|max:500',
+            'status' => 'required|in:pending,confirmed,cancelled',
+            'payment_status' => 'required|in:pending,paid,refunded',
+            'payment_method' => 'required|in:cash,card,paypal',
+        ]);
+
+        $reservation->update($validated);
+
+        return redirect()->route('agency.reservations.index')
+            ->with('success', 'Réservation mise à jour.');
+    }
+
+    /**
+     * Suppression d'une réservation (par l'agence)
+     */
+    public function agencyDestroy($id)
+    {
+        if (Auth::user()->role !== 'AGENCE') {
+            abort(403);
+        }
+
+        $reservation = Reservation::whereHas('navette', function ($q) {
+                $q->where('creator', Auth::id());
+            })
+            ->findOrFail($id);
+
+        // On autorise la suppression uniquement si pas confirmée ou déjà annulée
+        if ($reservation->status === 'confirmed') {
+            return redirect()->back()->with('error', 'Impossible de supprimer une réservation confirmée.');
+        }
+
+        $reservation->delete();
+
+        return redirect()->route('agency.reservations.index')
+            ->with('success', 'Réservation supprimée.');
+    }
 }

@@ -82,6 +82,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/vehicles/{id}', [VehicleController::class, 'destroy'])->name('vehicles.destroy');
         Route::post('/vehicles/{id}/status', [VehicleController::class, 'updateStatus'])->name('vehicles.updateStatus');
         Route::get('/api/vehicles/available', [VehicleController::class, 'getAvailableVehicles'])->name('api.vehicles.available');
+
+        // Reservations management for agencies
+        Route::get('/reservations', [ReservationController::class, 'agencyIndex'])->name('reservations.index');
+        Route::get('/reservations/{id}/edit', [ReservationController::class, 'agencyEdit'])->name('reservations.edit');
+        Route::put('/reservations/{id}', [ReservationController::class, 'agencyUpdate'])->name('reservations.update');
+        Route::delete('/reservations/{id}', [ReservationController::class, 'agencyDestroy'])->name('reservations.destroy');
     });
     // Routes de réservation améliorées
     Route::get('/reservation/create/{id}', [ReservationController::class, 'create'])->name('reservation.create');

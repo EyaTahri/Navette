@@ -96,6 +96,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/reservation/{id}', [ReservationController::class, 'show'])->name('reservation.show');
     Route::post('/reservation/{id}/cancel', [ReservationController::class, 'cancel'])->name('reservation.cancel');
     Route::post('/api/reservation/calculate-price', [ReservationController::class, 'calculatePrice'])->name('api.reservation.calculate-price');
+
+    // Reservations user self-service (edit/delete when pending)
+    Route::get('/reservation/{id}/edit', [ReservationController::class, 'userEdit'])->name('reservation.user.edit');
+    Route::put('/reservation/{id}', [ReservationController::class, 'userUpdate'])->name('reservation.user.update');
+    Route::delete('/reservation/{id}', [ReservationController::class, 'userDestroy'])->name('reservation.user.destroy');
     
     // Routes existantes (pour compatibilité)
     Route::post('/creereservation/{id}', [ReservationController::class, 'store'])->name('creeteres');

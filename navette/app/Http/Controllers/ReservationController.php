@@ -159,6 +159,77 @@ class ReservationController extends Controller
     }
 
     /**
+     * Edit reservation by user when pending
+     */
+    public function userEdit($id)
+    {
+        $reservation = Reservation::with('navette')->findOrFail($id);
+        if ($reservation->user_id !== Auth::id()) {
+            abort(403);
+        }
+        if ($reservation->status !== 'pending') {
+            return redirect()->route('navettes.reservations')->with('error', 'Modification impossible (statut non pending).');
+        }
+        return view('job.reservation-edit-user', compact('reservation'));
+    }
+
+    /**
+     * Update reservation by user when pending
+     */
+    public function userUpdate(Request $request, $id)
+    {
+        $reservation = Reservation::with('navette')->findOrFail($id);
+        if ($reservation->user_id !== Auth::id()) {
+            abort(403);
+        }
+        if ($reservation->status !== 'pending') {
+            return redirect()->route('navettes.reservations')->with('error', 'Modification impossible (statut non pending).');
+        }
+
+        $validated = $request->validate([
+            'passenger_count' => 'required|integer|min:1|max:20',
+            'contact_phone' => 'required|string|max:20',
+            'special_requests' => 'nullable|string|max:500',
+            'payment_method' => 'required|in:cash,card,paypal',
+        ]);
+
+        // recalcul prix
+        $totalPrice = $this->calculateTotalPrice($reservation->navette, $validated['passenger_count']);
+
+        $updateData = [
+            'contact_phone' => $validated['contact_phone'],
+            'special_requests' => $validated['special_requests'] ?? null,
+            'payment_method' => $validated['payment_method'],
+        ];
+        if (Schema::hasColumn('reservations', 'passenger_count')) {
+            $updateData['passenger_count'] = $validated['passenger_count'];
+        }
+        if (Schema::hasColumn('reservations', 'total_price')) {
+            $updateData['total_price'] = $totalPrice;
+        }
+
+        $reservation->update($updateData);
+        return redirect()->route('navettes.reservations')->with('success', 'Réservation mise à jour.');
+    }
+
+    /**
+     * Delete reservation by user when pending
+     */
+    public function userDestroy($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+        if ($reservation->user_id !== Auth::id()) {
+            abort(403);
+        }
+        if ($reservation->status !== 'pending') {
+            return redirect()->route('navettes.reservations')->with('error', 'Suppression impossible (statut non pending).');
+        }
+
+        $reservation->delete();
+        return redirect()->route('navettes.reservations')->with('success', 'Réservation supprimée.');
+    }
+
+    /**
      * Calculer le prix total d'une navette
      */
     private function calculateTotalPrice($navette, $passengerCount = 1)

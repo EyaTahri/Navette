@@ -79,8 +79,8 @@ class ReservationController extends Controller
 
         Log::info('Reservation created', ['reservation_id' => $reservation->id]);
 
-        // Rediriger vers la page de confirmation
-        return redirect()->route('reservation.confirmation', $reservation->id)
+        // Rediriger vers l'historique des réservations utilisateur
+        return redirect()->route('navettes.reservations')
             ->with('success', 'Réservation créée avec succès !');
     }
 
@@ -162,9 +162,16 @@ class ReservationController extends Controller
      */
     private function calculateAvailableSeats($navette)
     {
-        $reservedSeats = $navette->reservations()
-            ->where('status', 'confirmed')
-            ->sum('passenger_count');
+        $query = $navette->reservations()->where('status', 'confirmed');
+        // fallback si la colonne passenger_count n'existe pas encore
+        try {
+            $reservedSeats = $query->sum('passenger_count');
+            if ($reservedSeats === null) {
+                $reservedSeats = $query->count();
+            }
+        } catch (\Exception $e) {
+            $reservedSeats = $query->count();
+        }
 
         return max(0, $navette->capacity - $reservedSeats);
     }

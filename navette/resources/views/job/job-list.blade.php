@@ -13,20 +13,7 @@
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="{{ route('search.index') }}">
-        <i class="fas fa-car text-primary me-2"></i> Covoiturage Navette
-      </a>
-      <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="{{ route('profile') }}"><i class="fas fa-user me-1"></i>Profil</a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
-        <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-          <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
-        </a>
-      </div>
-    </div>
-  </nav>
+  @include('job.partials.navbar')
 
   <div class="hero">
     <div class="container">

@@ -154,7 +154,8 @@
                             <div class="text-center">
                                 <small class="text-white-50">Connecté en tant que</small>
                                 <div class="fw-bold text-white">{{ Auth::user()->name }}</div>
-                                <a href="{{ route('logout') }}" class="btn btn-outline-light btn-sm mt-2">
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
+                                <a href="#" class="btn btn-outline-light btn-sm mt-2" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fas fa-sign-out-alt me-1"></i>
                                     Déconnexion
                                 </a>

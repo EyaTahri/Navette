@@ -135,7 +135,10 @@
                             Admin
                         </a>
                     @endif
-                    <a class="nav-link" href="{{ route('logout') }}">
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                    <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         <i class="fas fa-sign-out-alt me-1"></i>
                         Déconnexion
                     </a>

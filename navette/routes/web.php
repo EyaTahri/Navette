@@ -72,7 +72,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/navette/{id}', [NavetteController::class, 'update'])->name('updateNav');
     
     // Routes de gestion des véhicules pour les agences
-    Route::prefix('agency')->name('agency.')->group(function () {
+    Route::prefix('agency')->name('agency.')->middleware('agency')->group(function () {
         Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
         Route::get('/vehicles/create', [VehicleController::class, 'create'])->name('vehicles.create');
         Route::post('/vehicles', [VehicleController::class, 'store'])->name('vehicles.store');

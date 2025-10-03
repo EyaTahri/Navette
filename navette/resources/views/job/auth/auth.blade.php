@@ -4,59 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Sign Up</title>
+<title>Connexion / Inscription</title>
 
-    <!-- Font Icon -->
-    <!-- Font Icon -->
-    <link rel="stylesheet" href="{{ asset('auth/fonts/material-icon/css/material-design-iconic-font.min.css') }}">
-
-    <!-- Main css -->
-    <link rel="stylesheet" href="{{ asset('auth/css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .hidden {
-            display: none;
-        }
+        .auth-hero{background:linear-gradient(135deg,rgba(102,126,234,.9),rgba(118,75,162,.9));padding:3rem 0;margin-bottom:2rem}
+        .auth-card{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+        .hidden{display:none}
+        .form-control{border-radius:10px;border:2px solid #e9ecef;padding:12px 15px}
+        .form-control:focus{border-color:#667eea;box-shadow:0 0 0 .2rem rgba(102,126,234,.25)}
+        .btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:10px}
+        .switch-link{cursor:pointer;color:#667eea}
+        .switch-link:hover{text-decoration:underline}
     </style>
 </head>
 <body>
 
-    <div class="main">
+    <div class="auth-hero">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="text-center text-white mb-3">
+              <h1 class="fw-bold">Bienvenue</h1>
+              <p class="mb-0">Connectez-vous ou créez un compte pour réserver</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <!-- Sign up form -->
-        <section class="signup hidden" id="signup-section">
-            <div class="container" style="top:10%;left: 50%;">
-                <div class="signup-content">
-                    <div class="signup-form">
-                        <h2 class="form-title">Sign up</h2>
-                        <form method="POST" action="{{ route('register') }}" class="register-form" id="register-form">
+    <div class="container mb-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="auth-card p-4">
+            <ul class="nav nav-pills mb-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="signin-tab" data-bs-toggle="pill" data-bs-target="#signin-pane" type="button" role="tab">Connexion</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="signup-tab" data-bs-toggle="pill" data-bs-target="#signup-pane" type="button" role="tab">Inscription</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="agency-tab" data-bs-toggle="pill" data-bs-target="#agency-pane" type="button" role="tab">Inscription Agence</button>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="signin-pane" role="tabpanel">
+                <form id="login-form" action="{{ route('login') }}" method="POST">
+                  @csrf
+                  <div class="mb-3">
+                    <label class="form-label">Adresse email</label>
+                    <input type="email" name="email" class="form-control" placeholder="ex: jean@exemple.com" required />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" name="password" class="form-control" placeholder="********" required />
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                      <label class="form-check-label" for="remember">Se souvenir de moi</label>
+                    </div>
+                    <a href="{{ route('search.index') }}" class="switch-link">Retour à l'accueil</a>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                </form>
+              </div>
+              <div class="tab-pane fade" id="signup-pane" role="tabpanel">
+                <form method="POST" action="{{ route('register') }}" id="register-form">
     @csrf
-    <div class="form-group">
-    <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
-    <input type="text" name="name" id="name" placeholder="Nom" required />
-</div>
-<div class="form-group">
-    <label for="contactdetails"><i class="zmdi zmdi-phone"></i></label>
-    <input type="text" name="contactdetails" id="contactdetails" placeholder="Contact Details" required />
-</div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Nom complet</label>
+                      <input type="text" name="name" class="form-control" placeholder="Nom" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Téléphone</label>
+                      <input type="text" name="contactdetails" class="form-control" placeholder="06 12 34 56 78" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Email</label>
+                      <input type="email" name="email" class="form-control" placeholder="jean@exemple.com" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Mot de passe</label>
+                      <input type="password" name="password" class="form-control" placeholder="********" required />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Confirmer le mot de passe</label>
+                      <input type="password" name="password_confirmation" class="form-control" placeholder="********" required />
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100 mt-3">Créer mon compte</button>
 
-<div class="form-group">
-    <label for="email"><i class="zmdi zmdi-email"></i></label>
-    <input type="email" name="email" id="email" placeholder="Adresse mail" required />
-</div>
-<div class="form-group">
-    <label for="pass"><i class="zmdi zmdi-lock"></i></label>
-    <input type="password" name="password" id="pass" placeholder="Mot de passe" required />
-</div>
-<div class="form-group">
-    <label for="re-pass"><i class="zmdi zmdi-lock-outline"></i></label>
-    <input type="password" name="password_confirmation" id="re_pass" placeholder="Confirmez le mot de passe" required />
-</div>
-
-<div class="form-group form-button">
-    <button type="submit" class="btn btn-primary form-submit">S'inscrire</button>
-</div>
-
-</form>
+                </form>
 
                     </div>
                     <div class="signup-image">
@@ -67,114 +109,49 @@
             </div>
         </section>
 
-        <!-- Sign in form (hidden by default) -->
-        <section class="sign-in" id="signin-section">
-            <div class="container">
-                <div class="signin-content">
-                    <div class="signin-image">
-                    <figure><img src="{{ asset('auth/images/signup-image.jpg') }}" alt="sign up image"></figure>
-                    <a href="javascript:void(0);" class="signup-image-link" id="create-account-link" >Crér un compte</a>
+              <div class="tab-pane fade" id="agency-pane" role="tabpanel">
+                <form method="POST" action="{{ route('registerAgence') }}">
+                  @csrf
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Nom de l'agence</label>
+                      <input type="text" name="name" class="form-control" placeholder="Agence X" required />
                     </div>
-                    <div class="signin-form">
-                        <h2 class="form-title">S'identifier</h2>
-                        <form id="login-form" action="{{ route('login') }}" method="POST">
-    @csrf
-    <div class="form-group">
-        <label for="your_name"><i class="zmdi zmdi-account material-icons-name"></i></label>
-        <input type="email" name="email" id="your_name" placeholder="Adresse" required />
-    </div>
-    <div class="form-group">
-        <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
-        <input type="password" name="password" id="your_pass" placeholder="Mot de passe" required />
-    </div>
-    <div class="form-group">
-        <input type="checkbox" name="remember" id="remember-me" class="agree-term" />
-        <label for="remember-me" class="label-agree-term">
-            <span><span></span></span>Rappeler moi
-        </label>
-    </div>
-    <div class="form-group form-button">
-        <button type="submit" class="btn btn-primary form-submit">S'identifier</button>
-    </div>
-</form>
-
-
-                        
+                    <div class="col-md-6">
+                      <label class="form-label">Lieu</label>
+                      <input type="text" name="lieu" class="form-control" placeholder="Casablanca" required />
                     </div>
-                </div>
-            </div>
-        </section>
-        <section class="signup  hidden" id="signup-agence-section">
-    <div class="container" style="top:10%;left: 50%;">
-        <div class="signup-content">
-            <div class="signup-form">
-                <h2 class="form-title">Inscription agences</h2>
-                <form method="POST" action="{{ route('registerAgence') }}" class="register-form" id="register-form">
-                    @csrf
-                    <div class="form-group">
-                        <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                        <input type="text" name="name" id="name" placeholder="Nom de l'agence" required/>
+                    <div class="col-md-6">
+                      <label class="form-label">Email</label>
+                      <input type="email" name="email" class="form-control" placeholder="contact@agence.com" required />
                     </div>
-                    <div class="form-group">
-                        <label for="lieu"><i class="zmdi zmdi-home"></i></label>
-                        <input type="text" name="lieu" id="lieu" placeholder="Lieu de l'agence" required/>
+                    <div class="col-md-6">
+                      <label class="form-label">Mot de passe</label>
+                      <input type="password" name="password" class="form-control" placeholder="********" required />
                     </div>
-                    <div class="form-group">
-                        <label for="email"><i class="zmdi zmdi-email"></i></label>
-                        <input type="email" name="email" id="email" placeholder="Adresse email" required/>
+                    <div class="col-md-6">
+                      <label class="form-label">Confirmer le mot de passe</label>
+                      <input type="password" name="password_confirmation" class="form-control" placeholder="********" required />
                     </div>
-                    <div class="form-group">
-                        <label for="password"><i class="zmdi zmdi-lock"></i></label>
-                        <input type="password" name="password" id="password" placeholder="Mot de passe" required/>
+                    <div class="col-12">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="agree" required>
+                        <label class="form-check-label" for="agree">J'accepte les politiques du site</label>
+                      </div>
                     </div>
-                    <div class="form-group">
-                        <label for="re_pass"><i class="zmdi zmdi-lock-outline"></i></label>
-                        <input type="password" name="password_confirmation" id="re_pass" placeholder="Confirmer le mot de passe" required/>
-                    </div>
-                    <div class="form-group">
-                        <input type="checkbox" name="agree-term" id="agree-term" class="agree-term" required/>
-                        <label for="agree-term" class="label-agree-term">
-        <span><span></span></span>J'accepte les politiques du site
-    </label>
-                    </div>
-                    <div class="form-group form-button">
-                        <button type="submit" class="btn btn-primary form-submit">S'inscrire</button>
-                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100 mt-3">Créer mon agence</button>
                 </form>
+              </div>
             </div>
-            <div class="signup-image">
-                <figure><img src="{{ asset('auth/images/signup-image.jpg') }}" alt="sign up image"></figure>
-                <a href="javascript:void(0);" class="signup-image-link" id="already-member-link-agence">Déjà un membre?</a>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
-</section>
 
     </div>
 
     <!-- JS -->
-    <script src="{{ asset('auth/js/script.js') }}"></script>
-    <script src="{{ asset('auth/vendor/jquery/jquery.min.js') }}"></script>
-    <script>
-document.getElementById('already-member-link').addEventListener('click', function() {
-    document.getElementById('signup-section').classList.add('hidden');
-    document.getElementById('signin-section').classList.remove('hidden');
-    document.getElementById('login-form').style.display = 'block'; // Show the login form
-});
-
-document.getElementById('create-account-link').addEventListener('click', function() {
-    document.getElementById('signin-section').classList.add('hidden');
-    document.getElementById('signup-section').classList.remove('hidden');
-});
-document.getElementById('create-agence-link').addEventListener('click', function() {
-    document.getElementById('signin-section').classList.add('hidden');
-    document.getElementById('signup-agence-section').classList.remove('hidden');
-
-});
-document.getElementById('already-member-link-agence').addEventListener('click', function() {
-            document.getElementById('signup-agence-section').classList.add('hidden');
-            document.getElementById('signin-section').classList.remove('hidden');
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

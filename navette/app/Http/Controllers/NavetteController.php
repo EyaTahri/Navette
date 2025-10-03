@@ -1,13 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Auth; // Ensure you include Auth
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\Navette;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Exception;
-use App\Models\Reservation; // Adjust the namespace as needed
 
 class NavetteController extends Controller
 {
@@ -15,29 +16,24 @@ class NavetteController extends Controller
     {
         $user = Auth::user();
         $navettes = Navette::all();
-        return view('job.testimonial', compact('navettes' , 'user'));
+        return view('job.testimonial', compact('navettes', 'user'));
     }
-    
 
-    
     public function indexReservations()
     {
         // Fetch reservations for the authenticated user and eager load the navette relationship
-        $reservations = Reservation::with('navette')->where('user_id', Auth::id())->get();
-    
-        // Pass only the reservations to the view
-        return view('job.job-list', compact('reservations')); // Adjust the view name as needed
+        $reservations = Reservation::with('navette')
+            ->where('user_id', Auth::id())
+            ->get();
+
+        return view('job.job-list', compact('reservations'));
     }
-    
-    
 
     public function store(Request $request)
     {
         try {
-            // Log incoming request data for debugging purposes
             Log::info('Request data: ', $request->all());
 
-            // Validate the request
             $validatedData = $request->validate([
                 'destination' => 'required|string|max:255',
                 'departure' => 'required|string|max:255',
@@ -55,44 +51,35 @@ class NavetteController extends Controller
                 'discount_percentage' => 'nullable|numeric|min:0|max:100',
                 'special' => 'nullable|numeric|min:0',
             ]);
-            $validatedData['creator'] = Auth::id(); // Get the authenticated user's ID
 
-            // Create the navette record
+            $validatedData['creator'] = Auth::id();
+
             $navette = Navette::create($validatedData);
 
-            // Calculate total price
             $totalPrice = $navette->price_per_person + $navette->vehicle_price + $navette->brand_price;
 
-            // Return a successful response
             return redirect()->route('create_navette')->with('success', 'Navette créée avec succès');
 
         } catch (ValidationException $e) {
-            // Log the validation errors
             Log::error('Validation failed: ', ['errors' => $e->errors()]);
-
-            // Return a JSON response with validation errors
             return response()->json([
                 'error' => 'Validation failed',
                 'message' => $e->errors()
             ], 422);
         } catch (Exception $e) {
-            // Log any other exceptions
             Log::error('Error occurred while storing navette data: ' . $e->getMessage());
-
-            // Return a general error response
             return response()->json([
                 'error' => 'An error occurred while processing your request.',
                 'message' => $e->getMessage()
             ], 500);
         }
     }
+
     public function update(Request $request, $id)
     {
         try {
-            // Log incoming request data for debugging purposes
             Log::info('Update request data: ', $request->all());
-    
-            // Validate the request
+
             $validatedData = $request->validate([
                 'destination' => 'required|string|max:255',
                 'departure' => 'required|string|max:255',
@@ -104,63 +91,52 @@ class NavetteController extends Controller
                 'brand_price' => 'required|numeric|min:0',
                 'special' => 'nullable|numeric|min:0',
             ]);
-    
-            // Find the navette by ID
+
             $navette = Navette::findOrFail($id);
-    
-            // Update the navette record
             $navette->update($validatedData);
-    
-            // Return a successful response
-            return redirect()->route('navettes.index')->with('success', 'Navette updated successfully');
-    
+
+            return redirect()->route('navettes.index')->with('success', 'Navette mise à jour avec succès');
+
         } catch (ValidationException $e) {
-            // Log the validation errors
             Log::error('Validation failed during update: ', ['errors' => $e->errors()]);
-    
-            // Return a JSON response with validation errors
             return response()->json([
                 'error' => 'Validation failed',
                 'message' => $e->errors()
             ], 422);
         } catch (Exception $e) {
-            // Log any other exceptions
             Log::error('Error occurred while updating navette data: ' . $e->getMessage());
-    
-            // Return a general error response
             return response()->json([
                 'error' => 'An error occurred while processing your request.',
                 'message' => $e->getMessage()
             ], 500);
         }
     }
+
     public function accept($id)
     {
         $navette = Navette::findOrFail($id);
-        $navette->accepted = true; // Set accepted to true
-        $navette->save(); // Save the changes
-    
+        $navette->accepted = true;
+        $navette->save();
+
         return redirect()->back()->withInput();
     }
-    
+
     public function refuse($id)
     {
         $navette = Navette::findOrFail($id);
-        $navette->accepted = false; // Set accepted to false
-        $navette->save(); // Save the changes
-    
+        $navette->accepted = false;
+        $navette->save();
+
         return redirect()->back()->withInput();
     }
-        
 
-public function destroy($id)
-{
-    $navette = Navette::findOrFail($id);
-    $navette->delete();
+    public function destroy($id)
+    {
+        $navette = Navette::findOrFail($id);
+        $navette->delete();
 
-    return redirect()->route('navettes.index')->with('success', 'Navette deleted successfully');
-}
-}
+        return redirect()->route('navettes.index')->with('success', 'Navette supprimée avec succès');
+    }
 
     /**
      * Liste des offres de l'agence
@@ -181,9 +157,11 @@ public function destroy($id)
     {
         $navette = Navette::where('creator', auth()->id())->findOrFail($id);
         $navette->is_special_offer = true;
+
         if (request()->has('discount_percentage')) {
             $navette->discount_percentage = max(0, min(100, (int) request('discount_percentage')));
         }
+
         $navette->save();
         return redirect()->back()->with('success', 'Offre publiée.');
     }
@@ -197,5 +175,7 @@ public function destroy($id)
         $navette->is_special_offer = false;
         $navette->discount_percentage = null;
         $navette->save();
+
         return redirect()->back()->with('success', 'Offre retirée.');
     }
+}

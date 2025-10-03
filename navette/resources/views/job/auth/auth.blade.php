@@ -29,6 +29,19 @@
               <h1 class="fw-bold">Bienvenue</h1>
               <p class="mb-0">Connectez-vous ou créez un compte pour réserver</p>
             </div>
+            <div class="car-animation mt-4">
+              <svg width="100%" height="140" viewBox="0 0 800 140" preserveAspectRatio="xMidYMid slice">
+                <rect x="0" y="105" width="800" height="6" fill="rgba(255,255,255,0.6)"/>
+                <g class="car">
+                  <rect x="0" y="60" width="120" height="30" rx="6" fill="#ffffff" opacity="0.95"/>
+                  <rect x="20" y="40" width="70" height="25" rx="6" fill="#ffffff" opacity="0.9"/>
+                  <circle class="wheel" cx="30" cy="95" r="10" fill="#667eea"/>
+                  <circle class="wheel" cx="90" cy="95" r="10" fill="#667eea"/>
+                  <circle cx="55" cy="52" r="4" fill="#764ba2"/>
+                  <circle cx="67" cy="52" r="4" fill="#764ba2"/>
+                </g>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -99,15 +112,6 @@
                   <button type="submit" class="btn btn-primary w-100 mt-3">Créer mon compte</button>
 
                 </form>
-
-                    </div>
-                    <div class="signup-image">
-                        <figure><img src="{{ asset('auth/images/signup-image.jpg') }}" alt="sign up image"></figure>
-                        <a href="javascript:void(0);" class="signup-image-link" id="already-member-link">Déjà un membre?</a>
-                    </div>
-                </div>
-            </div>
-        </section>
 
               <div class="tab-pane fade" id="agency-pane" role="tabpanel">
                 <form method="POST" action="{{ route('registerAgence') }}">

@@ -112,6 +112,10 @@
                                     <h5 class="mb-3">{{ $navette->destination }}</h5>
                                     <span class="text-truncate me-3"><i class="fa fa-map-marker-alt text-primary me-2"></i>{{ $navette->departure }}</span>
                                     <span class="text-truncate me-3"><i class="far fa-clock text-primary me-2"></i>{{ $navette->arrival }}</span>
+                                    @if($navette->vehicle)
+                                        <span class="text-truncate me-3"><i class="fas fa-car text-primary me-2"></i>{{ $navette->vehicle->brand }} {{ $navette->vehicle->model }}</span>
+                                        <span class="text-truncate me-3"><i class="fas fa-users text-primary me-2"></i>{{ $navette->vehicle->capacity }} places</span>
+                                    @endif
                                     <span class="text-truncate me-0">
     <i class="far fa-money-bill-alt text-primary me-2"></i>
     @php

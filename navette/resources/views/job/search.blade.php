@@ -166,11 +166,11 @@
             <div class="row align-items-center">
                 <div class="col-lg-6">
                     <h1 class="display-4 fw-bold text-white mb-4">
-                        Voyagez malin, voyagez ensemble
+                        Voyagez malin à travers la Tunisie
                     </h1>
                     <p class="lead text-white mb-4">
-                        Trouvez votre navette idéale parmi des milliers de trajets disponibles. 
-                        Économisez sur vos déplacements tout en réduisant votre empreinte carbone.
+                        Trouvez votre navette idéale parmi des milliers de trajets tunisiens disponibles. 
+                        Découvrez les plus belles destinations de la Tunisie à prix réduits.
                     </p>
                     <div class="d-flex gap-3">
                         <a href="#search" class="btn btn-light btn-lg">
@@ -209,25 +209,25 @@
             <div class="row text-center">
                 <div class="col-md-3">
                     <div class="stat-item">
-                        <span class="stat-number">10K+</span>
-                        <span class="stat-label">Trajets disponibles</span>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-item">
                         <span class="stat-number">5K+</span>
-                        <span class="stat-label">Utilisateurs actifs</span>
+                        <span class="stat-label">Trajets tunisiens</span>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-item">
-                        <span class="stat-number">500+</span>
-                        <span class="stat-label">Agences partenaires</span>
+                        <span class="stat-number">3K+</span>
+                        <span class="stat-label">Voyageurs tunisiens</span>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-item">
-                        <span class="stat-number">50%</span>
+                        <span class="stat-number">200+</span>
+                        <span class="stat-label">Agences en Tunisie</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <span class="stat-number">40%</span>
                         <span class="stat-label">Économie moyenne</span>
                     </div>
                 </div>
@@ -241,8 +241,8 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="text-center text-white mb-4">
-                        <h1 class="display-4 fw-bold mb-3">Trouvez votre navette idéale</h1>
-                        <p class="lead">Recherchez parmi des milliers de trajets disponibles</p>
+                        <h1 class="display-4 fw-bold mb-3">Trouvez votre navette en Tunisie</h1>
+                        <p class="lead">Recherchez parmi des milliers de trajets tunisiens disponibles</p>
                     </div>
                     
                     <form class="search-form" action="{{ route('search.results') }}" method="GET">
@@ -331,18 +331,7 @@
                         </div>
                         
                         <div class="row mt-4">
-                            <div class="col-md-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="special_offers" 
-                                           value="1" {{ request('special_offers') ? 'checked' : '' }}>
-                                    <label class="form-check-label fw-bold">
-                                        <i class="fas fa-star text-warning me-1"></i>
-                                        Offres spéciales uniquement
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6 text-end">
+                            <div class="col-md-12 text-end">
                                 <button type="submit" class="btn btn-search btn-lg">
                                     <i class="fas fa-search me-2"></i>
                                     Rechercher
@@ -359,25 +348,85 @@
     <div class="container mb-5">
         <h2 class="text-center mb-4">
             <i class="fas fa-fire text-danger me-2"></i>
-            Destinations populaires
+            Destinations populaires en Tunisie
         </h2>
         <div class="row">
-            @foreach($popularDestinations as $destination)
             <div class="col-md-3 col-sm-6">
                 <div class="popular-destination text-center" 
-                     onclick="fillDestination('{{ $destination->departure }}', '{{ $destination->destination }}')">
+                     onclick="fillDestination('Tunis', 'Sfax')">
                     <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
-                    <h6 class="mb-1">{{ $destination->departure }}</h6>
+                    <h6 class="mb-1">Tunis</h6>
                     <small class="text-muted">vers</small>
-                    <h6 class="mb-0">{{ $destination->destination }}</h6>
+                    <h6 class="mb-0">Sfax</h6>
                 </div>
             </div>
-            @endforeach
+            <div class="col-md-3 col-sm-6">
+                <div class="popular-destination text-center" 
+                     onclick="fillDestination('Tunis', 'Djerba')">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h6 class="mb-1">Tunis</h6>
+                    <small class="text-muted">vers</small>
+                    <h6 class="mb-0">Djerba</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="popular-destination text-center" 
+                     onclick="fillDestination('Tunis', 'Tozeur')">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h6 class="mb-1">Tunis</h6>
+                    <small class="text-muted">vers</small>
+                    <h6 class="mb-0">Tozeur</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="popular-destination text-center" 
+                     onclick="fillDestination('Sfax', 'Djerba')">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h6 class="mb-1">Sfax</h6>
+                    <small class="text-muted">vers</small>
+                    <h6 class="mb-0">Djerba</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="popular-destination text-center" 
+                     onclick="fillDestination('Sfax', 'Tozeur')">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h6 class="mb-1">Sfax</h6>
+                    <small class="text-muted">vers</small>
+                    <h6 class="mb-0">Tozeur</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="popular-destination text-center" 
+                     onclick="fillDestination('Tunis', 'Hammamet')">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h6 class="mb-1">Tunis</h6>
+                    <small class="text-muted">vers</small>
+                    <h6 class="mb-0">Hammamet</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="popular-destination text-center" 
+                     onclick="fillDestination('Tunis', 'Sousse')">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h6 class="mb-1">Tunis</h6>
+                    <small class="text-muted">vers</small>
+                    <h6 class="mb-0">Sousse</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="popular-destination text-center" 
+                     onclick="fillDestination('Tunis', 'Monastir')">
+                    <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
+                    <h6 class="mb-1">Tunis</h6>
+                    <small class="text-muted">vers</small>
+                    <h6 class="mb-0">Monastir</h6>
+                </div>
+            </div>
         </div>
     </div>
 
     @auth
-    @if(isset($availableNavettes) && $availableNavettes->count() > 0)
     <!-- Réservation rapide -->
     <div class="container mb-5">
         <h2 class="text-center mb-4">
@@ -388,24 +437,51 @@
             <div class="card-body">
                 <form action="{{ route('reservation.store') }}" method="POST" class="row g-3 align-items-end">
                     @csrf
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Choisir un trajet</label>
-                        <select name="navette_id" class="form-select" required>
-                            @foreach($availableNavettes as $n)
-                              <option value="{{ $n->id }}">
-                                {{ $n->departure }} → {{ $n->destination }}
-                                {{ $n->departure_datetime ? ' - '. $n->departure_datetime->format('d/m H:i') : '' }}
-                              </option>
-                            @endforeach
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-map-marker-alt text-primary me-1"></i>Départ
+                        </label>
+                        <input type="text" name="departure" class="form-control" placeholder="Ville de départ" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-map-marker-alt text-danger me-1"></i>Destination
+                        </label>
+                        <input type="text" name="destination" class="form-control" placeholder="Ville d'arrivée" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-calendar-alt text-success me-1"></i>Date
+                        </label>
+                        <input type="date" name="departure_date" class="form-control" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-clock text-warning me-1"></i>Heure
+                        </label>
+                        <input type="time" name="departure_time" class="form-control" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">Type de véhicule</label>
+                        <select name="vehicle_id" class="form-select" required>
+                            <option value="">Sélectionner</option>
+                            @if(isset($availableVehicles) && $availableVehicles->count() > 0)
+                                @foreach($availableVehicles as $vehicle)
+                                    <option value="{{ $vehicle->id }}">
+                                        {{ $vehicle->vehicle_type }} - {{ $vehicle->brand }} {{ $vehicle->model }} 
+                                        ({{ $vehicle->capacity }} places)
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="" disabled>Aucun véhicule disponible</option>
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label fw-bold">Passagers</label>
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-users text-primary me-1"></i>Passagers
+                        </label>
                         <input type="number" name="passenger_count" class="form-control" value="1" min="1" max="20" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Téléphone</label>
-                        <input type="text" name="contact_phone" class="form-control" value="{{ Auth::user()->contactdetails ?? '' }}" placeholder="06 12 34 56 78" required>
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-bold">Demandes spéciales</label>
@@ -429,47 +505,8 @@
             </div>
         </div>
     </div>
-    @endif
     @endauth
 
-    <!-- Special Offers -->
-    @if($specialOffers->count() > 0)
-    <div class="container mb-5">
-        <h2 class="text-center mb-4">
-            <i class="fas fa-star text-warning me-2"></i>
-            Offres spéciales
-        </h2>
-        <div class="row">
-            @foreach($specialOffers as $offer)
-            <div class="col-md-4 mb-4">
-                <div class="card special-offer-card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge bg-danger">OFFRE SPÉCIALE</span>
-                            <span class="text-success fw-bold">-{{ $offer->discount_percentage }}%</span>
-                        </div>
-                        <h5 class="card-title">{{ $offer->departure }} → {{ $offer->destination }}</h5>
-                        <p class="card-text">
-                            <i class="fas fa-calendar-alt me-1"></i>
-                            {{ $offer->departure_datetime ? $offer->departure_datetime->format('d/m/Y H:i') : 'Date à définir' }}
-                        </p>
-                        <p class="card-text">
-                            <i class="fas fa-car me-1"></i>
-                            {{ $offer->vehicle_type }} - {{ $offer->brand }}
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="h5 text-primary mb-0">
-                                {{ number_format($offer->price_per_person, 2) }} €
-                            </span>
-                            <small class="text-muted">par personne</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-    @endif
 
     <!-- Footer -->
     <footer class="bg-dark text-white py-5 mt-5">
@@ -481,8 +518,8 @@
                         Covoiturage Navette
                     </h5>
                     <p class="text-muted">
-                        La plateforme de référence pour vos déplacements en navette. 
-                        Économique, écologique et pratique.
+                        La plateforme de référence pour vos déplacements en navette en Tunisie. 
+                        Découvrez toutes les régions tunisiennes à prix réduits.
                     </p>
                     <div class="d-flex gap-3">
                         <a href="#" class="text-white"><i class="fab fa-facebook fa-lg"></i></a>
@@ -521,9 +558,9 @@
                 <div class="col-md-2">
                     <h6 class="fw-bold mb-3">Contact</h6>
                     <ul class="list-unstyled text-muted">
-                        <li><i class="fas fa-phone me-2"></i>01 23 45 67 89</li>
-                        <li><i class="fas fa-envelope me-2"></i>contact@covoiturage.com</li>
-                        <li><i class="fas fa-map-marker-alt me-2"></i>Paris, France</li>
+                        <li><i class="fas fa-phone me-2"></i>+216 71 234 567</li>
+                        <li><i class="fas fa-envelope me-2"></i>contact@covoiturage.tn</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>Tunis, Tunisie</li>
                     </ul>
                 </div>
             </div>

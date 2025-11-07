@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter un Véhicule - {{ Auth::user()->name }}</title>
+    <title>Modifier un Véhicule - {{ Auth::user()->name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -73,6 +73,7 @@
             margin: 5px;
             display: inline-block;
             font-size: 0.9rem;
+            cursor: pointer;
         }
         .feature-tag.selected {
             background: #667eea;
@@ -99,10 +100,10 @@
                                 <div class="col-md-8">
                                     <h1 class="display-5 fw-bold mb-2">
                                         <i class="fas fa-car me-2"></i>
-                                        Ajouter un véhicule
+                                        Modifier le véhicule
                                     </h1>
                                     <p class="lead mb-0">
-                                        Ajoutez un nouveau véhicule à votre flotte
+                                        Modifiez les informations de votre véhicule
                                     </p>
                                 </div>
                                 <div class="col-md-4 text-end">
@@ -127,9 +128,10 @@
                             </div>
                             @endif
 
-                            <form action="{{ route('agency.vehicles.store') }}" 
+                            <form action="{{ route('agency.vehicles.update', $vehicle->id) }}" 
                                   method="POST" enctype="multipart/form-data">
                                 @csrf
+                                @method('PUT')
 
                                 <!-- Informations générales -->
                                 <h4 class="section-title">
@@ -144,7 +146,7 @@
                                             Marque *
                                         </label>
                                         <input type="text" class="form-control" name="brand" 
-                                               value="{{ old('brand') }}" 
+                                               value="{{ old('brand', $vehicle->brand) }}" 
                                                placeholder="Ex: Peugeot, Mercedes" required>
                                     </div>
                                     
@@ -154,7 +156,7 @@
                                             Modèle *
                                         </label>
                                         <input type="text" class="form-control" name="model" 
-                                               value="{{ old('model') }}" 
+                                               value="{{ old('model', $vehicle->model) }}" 
                                                placeholder="Ex: 308, Sprinter" required>
                                     </div>
                                     
@@ -165,10 +167,10 @@
                                         </label>
                                         <select class="form-control" name="vehicle_type" required>
                                             <option value="">Choisir un type</option>
-                                            <option value="Voiture" {{ old('vehicle_type') == 'Voiture' ? 'selected' : '' }}>Voiture</option>
-                                            <option value="Minibus" {{ old('vehicle_type') == 'Minibus' ? 'selected' : '' }}>Minibus</option>
-                                            <option value="Bus" {{ old('vehicle_type') == 'Bus' ? 'selected' : '' }}>Bus</option>
-                                            <option value="Van" {{ old('vehicle_type') == 'Van' ? 'selected' : '' }}>Van</option>
+                                            <option value="Voiture" {{ old('vehicle_type', $vehicle->vehicle_type) == 'Voiture' ? 'selected' : '' }}>Voiture</option>
+                                            <option value="Minibus" {{ old('vehicle_type', $vehicle->vehicle_type) == 'Minibus' ? 'selected' : '' }}>Minibus</option>
+                                            <option value="Bus" {{ old('vehicle_type', $vehicle->vehicle_type) == 'Bus' ? 'selected' : '' }}>Bus</option>
+                                            <option value="Van" {{ old('vehicle_type', $vehicle->vehicle_type) == 'Van' ? 'selected' : '' }}>Van</option>
                                         </select>
                                     </div>
                                 </div>
@@ -180,7 +182,7 @@
                                             Année *
                                         </label>
                                         <input type="number" class="form-control" name="year" 
-                                               value="{{ old('year') }}" 
+                                               value="{{ old('year', $vehicle->year) }}" 
                                                min="1900" max="{{ date('Y') + 1 }}" required>
                                     </div>
                                     
@@ -190,7 +192,7 @@
                                             Capacité *
                                         </label>
                                         <input type="number" class="form-control" name="capacity" 
-                                               value="{{ old('capacity') }}" 
+                                               value="{{ old('capacity', $vehicle->capacity) }}" 
                                                min="1" max="50" required>
                                     </div>
                                     
@@ -200,7 +202,7 @@
                                             Plaque d'immatriculation *
                                         </label>
                                         <input type="text" class="form-control" name="license_plate" 
-                                               value="{{ old('license_plate') }}" 
+                                               value="{{ old('license_plate', $vehicle->license_plate) }}" 
                                                placeholder="Ex: AB-123-CD" required>
                                     </div>
                                     
@@ -210,7 +212,7 @@
                                             Couleur
                                         </label>
                                         <input type="text" class="form-control" name="color" 
-                                               value="{{ old('color') }}" 
+                                               value="{{ old('color', $vehicle->color) }}" 
                                                placeholder="Ex: Blanc, Noir">
                                     </div>
                                 </div>
@@ -229,11 +231,11 @@
                                         </label>
                                         <select class="form-control" name="fuel_type" required>
                                             <option value="">Choisir un carburant</option>
-                                            <option value="gasoline" {{ old('fuel_type') == 'gasoline' ? 'selected' : '' }}>Essence</option>
-                                            <option value="diesel" {{ old('fuel_type') == 'diesel' ? 'selected' : '' }}>Diesel</option>
-                                            <option value="electric" {{ old('fuel_type') == 'electric' ? 'selected' : '' }}>Électrique</option>
-                                            <option value="hybrid" {{ old('fuel_type') == 'hybrid' ? 'selected' : '' }}>Hybride</option>
-                                            <option value="lpg" {{ old('fuel_type') == 'lpg' ? 'selected' : '' }}>GPL</option>
+                                            <option value="gasoline" {{ old('fuel_type', $vehicle->fuel_type) == 'gasoline' ? 'selected' : '' }}>Essence</option>
+                                            <option value="diesel" {{ old('fuel_type', $vehicle->fuel_type) == 'diesel' ? 'selected' : '' }}>Diesel</option>
+                                            <option value="electric" {{ old('fuel_type', $vehicle->fuel_type) == 'electric' ? 'selected' : '' }}>Électrique</option>
+                                            <option value="hybrid" {{ old('fuel_type', $vehicle->fuel_type) == 'hybrid' ? 'selected' : '' }}>Hybride</option>
+                                            <option value="lpg" {{ old('fuel_type', $vehicle->fuel_type) == 'lpg' ? 'selected' : '' }}>GPL</option>
                                         </select>
                                     </div>
                                     
@@ -244,9 +246,9 @@
                                         </label>
                                         <select class="form-control" name="transmission" required>
                                             <option value="">Choisir une transmission</option>
-                                            <option value="manual" {{ old('transmission') == 'manual' ? 'selected' : '' }}>Manuelle</option>
-                                            <option value="automatic" {{ old('transmission') == 'automatic' ? 'selected' : '' }}>Automatique</option>
-                                            <option value="semi_automatic" {{ old('transmission') == 'semi_automatic' ? 'selected' : '' }}>Semi-automatique</option>
+                                            <option value="manual" {{ old('transmission', $vehicle->transmission) == 'manual' ? 'selected' : '' }}>Manuelle</option>
+                                            <option value="automatic" {{ old('transmission', $vehicle->transmission) == 'automatic' ? 'selected' : '' }}>Automatique</option>
+                                            <option value="semi_automatic" {{ old('transmission', $vehicle->transmission) == 'semi_automatic' ? 'selected' : '' }}>Semi-automatique</option>
                                         </select>
                                     </div>
                                 </div>
@@ -279,7 +281,8 @@
                                             ];
                                             
                                             // S'assurer que $selectedFeatures est toujours un tableau
-                                            $selectedFeatures = old('features', []);
+                                            $oldFeatures = old('features', []);
+                                            $selectedFeatures = is_array($oldFeatures) ? $oldFeatures : ($vehicle->features ?? []);
                                             
                                             // Si c'est une chaîne JSON, la décoder
                                             if (is_string($selectedFeatures)) {
@@ -310,16 +313,22 @@
                                 
                                 <div class="mb-4">
                                     <div class="image-preview" id="imagePreview">
-                                        <div class="text-center">
-                                            <i class="fas fa-camera fa-3x text-muted mb-2"></i>
-                                            <p class="text-muted">Aucune image sélectionnée</p>
-                                        </div>
+                                        @if($vehicle->images && count($vehicle->images) > 0)
+                                            @foreach($vehicle->images as $image)
+                                            <img src="{{ Storage::url($image) }}" alt="Véhicule" class="me-2">
+                                            @endforeach
+                                        @else
+                                            <div class="text-center">
+                                                <i class="fas fa-camera fa-3x text-muted mb-2"></i>
+                                                <p class="text-muted">Aucune image sélectionnée</p>
+                                            </div>
+                                        @endif
                                     </div>
                                     
                                     <input type="file" class="form-control mt-3" name="images[]" 
                                            id="imageInput" multiple accept="image/*" 
                                            onchange="previewImages(this)">
-                                    <small class="text-muted">Vous pouvez sélectionner plusieurs images (max 2MB chacune)</small>
+                                    <small class="text-muted">Vous pouvez sélectionner plusieurs images (max 2MB chacune). Les nouvelles images remplaceront les anciennes.</small>
                                 </div>
 
                                 <!-- Tarifs -->
@@ -335,7 +344,7 @@
                                             Tarif journalier (€)
                                         </label>
                                         <input type="number" class="form-control" name="daily_rate" 
-                                               value="{{ old('daily_rate') }}" 
+                                               value="{{ old('daily_rate', $vehicle->daily_rate) }}" 
                                                min="0" step="0.01">
                                     </div>
                                     
@@ -345,7 +354,7 @@
                                             Tarif horaire (€)
                                         </label>
                                         <input type="number" class="form-control" name="hourly_rate" 
-                                               value="{{ old('hourly_rate') }}" 
+                                               value="{{ old('hourly_rate', $vehicle->hourly_rate) }}" 
                                                min="0" step="0.01">
                                     </div>
                                     
@@ -355,7 +364,7 @@
                                             Tarif au kilomètre (€)
                                         </label>
                                         <input type="number" class="form-control" name="km_rate" 
-                                               value="{{ old('km_rate') }}" 
+                                               value="{{ old('km_rate', $vehicle->km_rate) }}" 
                                                min="0" step="0.01">
                                     </div>
                                 </div>
@@ -373,7 +382,7 @@
                                             Dernière maintenance
                                         </label>
                                         <input type="date" class="form-control" name="maintenance_date" 
-                                               value="{{ old('maintenance_date') }}">
+                                               value="{{ old('maintenance_date', $vehicle->maintenance_date ? $vehicle->maintenance_date->format('Y-m-d') : '') }}">
                                     </div>
                                     
                                     <div class="col-md-6">
@@ -382,7 +391,7 @@
                                             Expiration assurance
                                         </label>
                                         <input type="date" class="form-control" name="insurance_expiry" 
-                                               value="{{ old('insurance_expiry') }}">
+                                               value="{{ old('insurance_expiry', $vehicle->insurance_expiry ? $vehicle->insurance_expiry->format('Y-m-d') : '') }}">
                                     </div>
                                 </div>
 
@@ -394,9 +403,36 @@
                                 
                                 <div class="mb-4">
                                     <textarea class="form-control" name="description" rows="4" 
-                                              placeholder="Décrivez les caractéristiques particulières de ce véhicule...">{{ old('description') }}</textarea>
+                                              placeholder="Décrivez les caractéristiques particulières de ce véhicule...">{{ old('description', $vehicle->description) }}</textarea>
                                 </div>
 
+                                <!-- Statut -->
+                                <h4 class="section-title">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Statut du véhicule
+                                </h4>
+                                
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Statut</label>
+                                        <select class="form-control" name="status">
+                                            <option value="available" {{ old('status', $vehicle->status) == 'available' ? 'selected' : '' }}>Disponible</option>
+                                            <option value="in_use" {{ old('status', $vehicle->status) == 'in_use' ? 'selected' : '' }}>En cours d'utilisation</option>
+                                            <option value="maintenance" {{ old('status', $vehicle->status) == 'maintenance' ? 'selected' : '' }}>En maintenance</option>
+                                            <option value="out_of_service" {{ old('status', $vehicle->status) == 'out_of_service' ? 'selected' : '' }}>Hors service</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-check mt-4">
+                                            <input class="form-check-input" type="checkbox" name="is_active" 
+                                                   value="1" {{ old('is_active', $vehicle->is_active) ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold">
+                                                Véhicule actif
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Boutons d'action -->
                                 <div class="d-flex justify-content-between">
@@ -407,7 +443,7 @@
                                     
                                     <button type="submit" class="btn btn-submit btn-lg">
                                         <i class="fas fa-save me-2"></i>
-                                        Créer le véhicule
+                                        Mettre à jour le véhicule
                                     </button>
                                 </div>
                             </form>
@@ -469,11 +505,5 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
 
 

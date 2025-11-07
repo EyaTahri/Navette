@@ -4,158 +4,184 @@ namespace App\Http\Controllers;
 
 use App\Models\Reservation; 
 use App\Models\Navette;
+use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Schema;
 
 class ReservationController extends Controller
 {
     /**
-     * Afficher le formulaire de réservation
-     */
-    public function create($navetteId)
-    {
-        $navette = Navette::findOrFail($navetteId);
-        
-        // Vérifier que la navette est acceptée
-        if (!$navette->accepted) {
-            return redirect()->back()->with('error', 'Cette navette n\'est pas encore disponible.');
-        }
-
-        // Calculer le prix total
-        $totalPrice = $this->calculateTotalPrice($navette);
-        
-        // Calculer les places disponibles
-        $availableSeats = $this->calculateAvailableSeats($navette);
-        
-        return view('job.reservation-form', compact('navette', 'totalPrice', 'availableSeats'));
-    }
-
-    /**
-     * Traiter la réservation
+     * Store a new reservation
      */
     public function store(Request $request)
     {
         Log::info('Store method started', ['request_data' => $request->all()]);
 
-        // Validation complète
+        // Si c'est une réservation rapide avec départ, destination, date, heure et véhicule
+        if ($request->has('departure') && $request->has('destination') && $request->has('vehicle_id')) {
+            // Validation pour réservation rapide
+            $validatedData = $request->validate([
+                'departure' => 'required|string|max:255',
+                'destination' => 'required|string|max:255',
+                'departure_date' => 'required|date',
+                'departure_time' => 'required|string',
+                'vehicle_id' => 'required|exists:vehicles,id',
+                'passenger_count' => 'required|integer|min:1|max:20',
+                'special_requests' => 'nullable|string|max:500',
+                'payment_method' => 'required|in:cash,card,paypal',
+            ]);
+
+            $departure = $validatedData['departure'];
+            $destination = $validatedData['destination'];
+            
+            // Combiner date et heure pour créer departure_datetime
+            $departure_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $validatedData['departure_date'] . ' ' . $validatedData['departure_time']);
+
+            // Récupérer le véhicule
+            $vehicle = Vehicle::findOrFail($validatedData['vehicle_id']);
+
+            // Chercher ou créer une navette pour ce trajet et ce véhicule
+            $navette = Navette::firstOrCreate(
+                [
+                    'departure' => $departure,
+                    'destination' => $destination,
+                    'vehicle_id' => $vehicle->id,
+                    'accepted' => true,
+                ],
+                [
+                    'arrival' => $destination, // Le champ arrival est requis
+                    'departure_datetime' => $departure_datetime,
+                    'vehicle_type' => $vehicle->vehicle_type,
+                    'brand' => $vehicle->brand,
+                    'capacity' => $vehicle->capacity,
+                    'price_per_person' => 50, // Prix par défaut raisonnable en DT
+                    'vehicle_price' => 1,
+                    'brand_price' => 0,
+                    'creator' => $vehicle->agency_id,
+                ]
+            );
+            
+            // Mettre à jour la date/heure si la navette existait déjà
+            if ($navette->wasRecentlyCreated === false) {
+                $navette->update(['departure_datetime' => $departure_datetime]);
+            }
+
+            // Calculer le prix total
+            $pricePerPerson = $navette->price_per_person ?? 50;
+            $totalPrice = $pricePerPerson * $validatedData['passenger_count'];
+
+            // Créer la réservation
+            $insertData = [
+                'user_id' => Auth::id(),
+                'navette_id' => $navette->id,
+                'passenger_count' => $validatedData['passenger_count'],
+                'total_price' => $totalPrice,
+                'payment_method' => $validatedData['payment_method'],
+                'status' => 'pending',
+                'payment_status' => 'pending',
+            ];
+
+            if (Schema::hasColumn('reservations', 'contact_phone')) {
+                $insertData['contact_phone'] = Auth::user()->contactdetails ?? '';
+            }
+            if (Schema::hasColumn('reservations', 'special_requests')) {
+                $insertData['special_requests'] = $validatedData['special_requests'] ?? null;
+            }
+
+            $reservation = Reservation::create($insertData);
+
+            Log::info('Reservation created', ['reservation_id' => $reservation->id]);
+
+            return redirect()->route('profile')
+                ->with('success', 'Réservation créée avec succès !');
+        }
+
+        // Ancienne méthode pour compatibilité (réservation avec navette_id)
         $validatedData = $request->validate([
             'navette_id' => 'required|exists:navettes,id',
             'passenger_count' => 'required|integer|min:1|max:20',
-            'contact_phone' => 'required|string|max:20',
+            'contact_phone' => 'nullable|string|max:20',
             'special_requests' => 'nullable|string|max:500',
             'payment_method' => 'required|in:cash,card,paypal',
         ]);
 
+        // Utiliser le contact de l'utilisateur par défaut si non fourni
+        if (empty($validatedData['contact_phone'])) {
+            $validatedData['contact_phone'] = Auth::user()->contactdetails ?? '';
+        }
+
         // Récupérer la navette
         $navette = Navette::findOrFail($validatedData['navette_id']);
-        
-        // Vérifier la disponibilité
-        $availableSeats = $this->calculateAvailableSeats($navette);
-        if ($validatedData['passenger_count'] > $availableSeats) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', "Seulement {$availableSeats} places disponibles.");
-        }
 
         // Calculer le prix total
         $totalPrice = $this->calculateTotalPrice($navette, $validatedData['passenger_count']);
 
-        Log::info('Total price calculated', ['total_price' => $totalPrice]);
-
         // Créer la réservation
         $insertData = [
             'user_id' => Auth::id(),
-            'navette_id' => $validatedData['navette_id'],
+            'navette_id' => $navette->id,
+            'passenger_count' => $validatedData['passenger_count'],
+            'total_price' => $totalPrice,
+            'payment_method' => $validatedData['payment_method'],
+            'status' => 'pending',
+            'payment_status' => 'pending',
         ];
+
         if (Schema::hasColumn('reservations', 'contact_phone')) {
             $insertData['contact_phone'] = $validatedData['contact_phone'];
         }
         if (Schema::hasColumn('reservations', 'special_requests')) {
-            $insertData['special_requests'] = $validatedData['special_requests'];
-        }
-        if (Schema::hasColumn('reservations', 'total_price')) {
-            $insertData['total_price'] = $totalPrice;
-        }
-        if (Schema::hasColumn('reservations', 'payment_method')) {
-            $insertData['payment_method'] = $validatedData['payment_method'];
-        }
-        if (Schema::hasColumn('reservations', 'status')) {
-            $insertData['status'] = 'pending';
-        }
-        if (Schema::hasColumn('reservations', 'payment_status')) {
-            $insertData['payment_status'] = 'pending';
-        }
-        // Éviter l'erreur si la colonne n'existe pas encore
-        if (Schema::hasColumn('reservations', 'passenger_count')) {
-            $insertData['passenger_count'] = $validatedData['passenger_count'];
+            $insertData['special_requests'] = $validatedData['special_requests'] ?? null;
         }
 
         $reservation = Reservation::create($insertData);
 
         Log::info('Reservation created', ['reservation_id' => $reservation->id]);
 
-        // Rediriger vers l'historique des réservations utilisateur
-        return redirect()->route('navettes.reservations')
+        return redirect()->route('profile')
             ->with('success', 'Réservation créée avec succès !');
     }
 
     /**
-     * Afficher la page de confirmation de réservation
+     * Calculate total price for a navette
      */
-    public function confirmation($reservationId)
+    private function calculateTotalPrice($navette, $passengerCount)
     {
-        $reservation = Reservation::with('navette')->findOrFail($reservationId);
-        
-        // Vérifier que l'utilisateur peut voir cette réservation
-        if ($reservation->user_id !== Auth::id()) {
-            abort(403, 'Accès non autorisé.');
+        $pricePerPerson = $navette->price_per_person ?? 0;
+        $vehiclePrice = $navette->vehicle_price ?? 0;
+        $brandPrice = $navette->brand_price ?? 0;
+        $special = $navette->special ?? 0;
+
+        $basePrice = $pricePerPerson * $vehiclePrice + $brandPrice;
+        $totalPrice = $basePrice * $passengerCount;
+
+        if ($special > 0) {
+            $totalPrice = $totalPrice - ($totalPrice * $special / 100);
         }
 
-        return view('job.reservation-confirmation', compact('reservation'));
+        return $totalPrice;
     }
 
-    /**
-     * Afficher les détails d'une réservation
-     */
-    public function show($reservationId)
+
+
+    public function updateStatus($id, $status)
     {
-        $reservation = Reservation::with('navette')->findOrFail($reservationId);
-        
-        // Vérifier que l'utilisateur peut voir cette réservation
-        if ($reservation->user_id !== Auth::id()) {
-            abort(403, 'Accès non autorisé.');
+        // Find the reservation by ID
+        $reservation = Reservation::findOrFail($id);
+
+        // Validate the status to accept only 'accepted' or 'refused'
+        if (!in_array($status, ['accepted', 'refused'])) {
+            return response()->json(['message' => 'Invalid status'], 400);
         }
 
-        return view('job.reservation-details', compact('reservation'));
-    }
+        // Update the reservation status based on the status passed
+        $reservation->status = ($status === 'accepted'); // true for accepted, false for refused
+        $reservation->save();
 
-    /**
-     * Annuler une réservation
-     */
-    public function cancel($reservationId)
-    {
-        $reservation = Reservation::findOrFail($reservationId);
-        
-        // Vérifier que l'utilisateur peut annuler cette réservation
-        if ($reservation->user_id !== Auth::id()) {
-            abort(403, 'Accès non autorisé.');
-        }
-
-        // Vérifier que la réservation peut être annulée
-        if ($reservation->status === 'cancelled') {
-            return redirect()->back()->with('error', 'Cette réservation est déjà annulée.');
-        }
-
-        // Annuler la réservation
-        $reservation->update([
-            'status' => 'cancelled',
-            'payment_status' => 'refunded'
-        ]);
-
-        return redirect()->back()->with('success', 'Réservation annulée avec succès.');
+        // Return a response
+        return redirect()->back()->withInput();
     }
 
     /**
@@ -164,12 +190,18 @@ class ReservationController extends Controller
     public function userEdit($id)
     {
         $reservation = Reservation::with('navette')->findOrFail($id);
+        
+        // Vérifier que la réservation appartient à l'utilisateur connecté
         if ($reservation->user_id !== Auth::id()) {
-            abort(403);
+            abort(403, 'Accès non autorisé.');
         }
+        
+        // Vérifier que la réservation peut être modifiée (statut pending)
         if ($reservation->status !== 'pending') {
-            return redirect()->route('navettes.reservations')->with('error', 'Modification impossible (statut non pending).');
+            return redirect()->route('profile')
+                ->with('error', 'Modification impossible. La réservation n\'est plus en attente.');
         }
+        
         return view('job.reservation-edit-user', compact('reservation'));
     }
 
@@ -179,37 +211,64 @@ class ReservationController extends Controller
     public function userUpdate(Request $request, $id)
     {
         $reservation = Reservation::with('navette')->findOrFail($id);
+        
+        // Vérifier que la réservation appartient à l'utilisateur connecté
         if ($reservation->user_id !== Auth::id()) {
-            abort(403);
+            abort(403, 'Accès non autorisé.');
         }
+        
+        // Vérifier que la réservation peut être modifiée (statut pending)
         if ($reservation->status !== 'pending') {
-            return redirect()->route('navettes.reservations')->with('error', 'Modification impossible (statut non pending).');
+            return redirect()->route('profile')
+                ->with('error', 'Modification impossible. La réservation n\'est plus en attente.');
         }
 
         $validated = $request->validate([
+            'departure' => 'required|string|max:255',
+            'destination' => 'required|string|max:255',
+            'departure_date' => 'required|date',
+            'departure_time' => 'required|string',
             'passenger_count' => 'required|integer|min:1|max:20',
-            'contact_phone' => 'required|string|max:20',
+            'contact_phone' => 'nullable|string|max:20',
             'special_requests' => 'nullable|string|max:500',
             'payment_method' => 'required|in:cash,card,paypal',
         ]);
 
-        // recalcul prix
-        $totalPrice = $this->calculateTotalPrice($reservation->navette, $validated['passenger_count']);
+        // Combiner date et heure pour créer departure_datetime
+        $departure_datetime = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $validated['departure_date'] . ' ' . $validated['departure_time']);
+        
+        // Mettre à jour la navette associée
+        $navette = $reservation->navette;
+        $navette->update([
+            'departure' => $validated['departure'],
+            'destination' => $validated['destination'],
+            'arrival' => $validated['destination'],
+            'departure_datetime' => $departure_datetime,
+        ]);
 
+        // Recalculer le prix total
+        $totalPrice = $this->calculateTotalPrice($navette, $validated['passenger_count']);
+
+        // Mettre à jour la réservation
         $updateData = [
-            'contact_phone' => $validated['contact_phone'],
-            'special_requests' => $validated['special_requests'] ?? null,
+            'passenger_count' => $validated['passenger_count'],
+            'total_price' => $totalPrice,
             'payment_method' => $validated['payment_method'],
         ];
-        if (Schema::hasColumn('reservations', 'passenger_count')) {
-            $updateData['passenger_count'] = $validated['passenger_count'];
+
+        if (Schema::hasColumn('reservations', 'contact_phone')) {
+            $updateData['contact_phone'] = $validated['contact_phone'] ?? Auth::user()->contactdetails ?? '';
         }
-        if (Schema::hasColumn('reservations', 'total_price')) {
-            $updateData['total_price'] = $totalPrice;
+        if (Schema::hasColumn('reservations', 'special_requests')) {
+            $updateData['special_requests'] = $validated['special_requests'] ?? null;
         }
 
         $reservation->update($updateData);
-        return redirect()->route('navettes.reservations')->with('success', 'Réservation mise à jour.');
+
+        Log::info('Reservation updated by user', ['reservation_id' => $reservation->id]);
+
+        return redirect()->route('profile')
+            ->with('success', 'Réservation modifiée avec succès !');
     }
 
     /**
@@ -218,189 +277,24 @@ class ReservationController extends Controller
     public function userDestroy($id)
     {
         $reservation = Reservation::findOrFail($id);
-        if ($reservation->user_id !== Auth::id()) {
-            abort(403);
-        }
-        if ($reservation->status !== 'pending') {
-            return redirect()->route('navettes.reservations')->with('error', 'Suppression impossible (statut non pending).');
-        }
-
-        $reservation->delete();
-        return redirect()->route('navettes.reservations')->with('success', 'Réservation supprimée.');
-    }
-
-    /**
-     * Calculer le prix total d'une navette
-     */
-    private function calculateTotalPrice($navette, $passengerCount = 1)
-    {
-        $basePrice = $navette->price_per_person + $navette->vehicle_price + $navette->brand_price;
-        $totalPrice = $basePrice * $passengerCount;
         
-        // Appliquer la remise si c'est une offre spéciale
-        if ($navette->is_special_offer && $navette->discount_percentage) {
-            $discount = $totalPrice * ($navette->discount_percentage / 100);
-            $totalPrice = $totalPrice - $discount;
-        }
-
-        return round($totalPrice, 2);
-    }
-
-    /**
-     * Calculer les places disponibles
-     */
-    private function calculateAvailableSeats($navette)
-    {
-        $query = $navette->reservations()->where('status', 'confirmed');
-        // fallback si la colonne passenger_count n'existe pas encore
-        try {
-            $reservedSeats = $query->sum('passenger_count');
-            if ($reservedSeats === null) {
-                $reservedSeats = $query->count();
-            }
-        } catch (\Exception $e) {
-            $reservedSeats = $query->count();
-        }
-
-        return max(0, $navette->capacity - $reservedSeats);
-    }
-
-    /**
-     * Mettre à jour le statut d'une réservation (pour les agences)
-     */
-    public function updateStatus($id, $status)
-    {
-        $reservation = Reservation::findOrFail($id);
-
-        // Vérifier que l'utilisateur est l'agence propriétaire de la navette
-        if ($reservation->navette->creator !== Auth::id()) {
+        // Vérifier que la réservation appartient à l'utilisateur connecté
+        if ($reservation->user_id !== Auth::id()) {
             abort(403, 'Accès non autorisé.');
         }
-
-        // Valider le statut
-        if (!in_array($status, ['confirmed', 'cancelled'])) {
-            return response()->json(['message' => 'Statut invalide'], 400);
-        }
-
-        // Mettre à jour le statut
-        $reservation->update([
-            'status' => $status,
-            'payment_status' => $status === 'confirmed' ? 'paid' : 'refunded'
-        ]);
-
-        return redirect()->back()->with('success', 'Statut de la réservation mis à jour.');
-    }
-
-    /**
-     * API pour calculer le prix en temps réel
-     */
-    public function calculatePrice(Request $request)
-    {
-        $request->validate([
-            'navette_id' => 'required|exists:navettes,id',
-            'passenger_count' => 'required|integer|min:1|max:20',
-        ]);
-
-        $navette = Navette::findOrFail($request->navette_id);
-        $totalPrice = $this->calculateTotalPrice($navette, $request->passenger_count);
-
-        return response()->json([
-            'total_price' => $totalPrice,
-            'price_per_person' => $navette->price_per_person,
-            'passenger_count' => $request->passenger_count,
-            'discount_percentage' => $navette->discount_percentage,
-            'is_special_offer' => $navette->is_special_offer,
-        ]);
-    }
-
-    /**
-     * Liste des réservations pour l'agence connectée
-     */
-    public function agencyIndex()
-    {
-        if (Auth::user()->role !== 'AGENCE') {
-            abort(403);
-        }
-
-        $reservations = Reservation::with(['navette', 'user'])
-            ->whereHas('navette', function ($q) {
-                $q->where('creator', Auth::id());
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
-
-        return view('job.agency.reservations.index', compact('reservations'));
-    }
-
-    /**
-     * Formulaire d'édition d'une réservation (par l'agence)
-     */
-    public function agencyEdit($id)
-    {
-        if (Auth::user()->role !== 'AGENCE') {
-            abort(403);
-        }
-
-        $reservation = Reservation::with(['navette', 'user'])
-            ->whereHas('navette', function ($q) {
-                $q->where('creator', Auth::id());
-            })
-            ->findOrFail($id);
-
-        return view('job.agency.reservations.edit', compact('reservation'));
-    }
-
-    /**
-     * Mise à jour d'une réservation (par l'agence)
-     */
-    public function agencyUpdate(Request $request, $id)
-    {
-        if (Auth::user()->role !== 'AGENCE') {
-            abort(403);
-        }
-
-        $reservation = Reservation::whereHas('navette', function ($q) {
-                $q->where('creator', Auth::id());
-            })
-            ->findOrFail($id);
-
-        $validated = $request->validate([
-            'passenger_count' => 'required|integer|min:1|max:20',
-            'contact_phone' => 'required|string|max:20',
-            'special_requests' => 'nullable|string|max:500',
-            'status' => 'required|in:pending,confirmed,cancelled',
-            'payment_status' => 'required|in:pending,paid,refunded',
-            'payment_method' => 'required|in:cash,card,paypal',
-        ]);
-
-        $reservation->update($validated);
-
-        return redirect()->route('agency.reservations.index')
-            ->with('success', 'Réservation mise à jour.');
-    }
-
-    /**
-     * Suppression d'une réservation (par l'agence)
-     */
-    public function agencyDestroy($id)
-    {
-        if (Auth::user()->role !== 'AGENCE') {
-            abort(403);
-        }
-
-        $reservation = Reservation::whereHas('navette', function ($q) {
-                $q->where('creator', Auth::id());
-            })
-            ->findOrFail($id);
-
-        // On autorise la suppression uniquement si pas confirmée ou déjà annulée
-        if ($reservation->status === 'confirmed') {
-            return redirect()->back()->with('error', 'Impossible de supprimer une réservation confirmée.');
+        
+        // Vérifier que la réservation peut être supprimée (statut pending)
+        if ($reservation->status !== 'pending') {
+            return redirect()->route('profile')
+                ->with('error', 'Suppression impossible. La réservation n\'est plus en attente.');
         }
 
         $reservation->delete();
 
-        return redirect()->route('agency.reservations.index')
-            ->with('success', 'Réservation supprimée.');
+        Log::info('Reservation deleted by user', ['reservation_id' => $id]);
+
+        return redirect()->route('profile')
+            ->with('success', 'Réservation supprimée avec succès !');
     }
+
 }

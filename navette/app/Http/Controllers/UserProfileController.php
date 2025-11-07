@@ -21,6 +21,7 @@ class UserProfileController extends Controller
         
         // Navettes disponibles (acceptées)
         $navettes = Navette::where('accepted', true)
+            ->with('vehicle')
             ->latest('created_at')
             ->get();
 

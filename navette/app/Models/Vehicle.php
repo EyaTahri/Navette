@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Vehicle extends Model
 {
@@ -102,6 +103,27 @@ class Vehicle extends Model
     }
 
     /**
+     * Obtenir l'URL de l'image principale si elle existe
+     */
+    public function getMainImageUrlAttribute()
+    {
+        $mainImage = $this->main_image;
+        if ($mainImage && Storage::disk('public')->exists($mainImage)) {
+            return Storage::url($mainImage);
+        }
+        return null;
+    }
+
+    /**
+     * Vérifier si l'image principale existe
+     */
+    public function hasMainImage()
+    {
+        $mainImage = $this->main_image;
+        return $mainImage && Storage::disk('public')->exists($mainImage);
+    }
+
+    /**
      * Obtenir le statut formaté
      */
     public function getStatusLabelAttribute()
@@ -143,6 +165,8 @@ class Vehicle extends Model
         };
     }
 }
+
+
 
 
 

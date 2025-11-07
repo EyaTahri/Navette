@@ -67,7 +67,7 @@ class VehicleController extends Controller
             'color' => 'nullable|string|max:100',
             'fuel_type' => 'required|in:gasoline,diesel,electric,hybrid,lpg',
             'transmission' => 'required|in:manual,automatic,semi_automatic',
-            'features' => 'nullable|array',
+            'features' => 'nullable|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'maintenance_date' => 'nullable|date',
             'insurance_expiry' => 'nullable|date|after:today',
@@ -88,6 +88,19 @@ class VehicleController extends Controller
                 }
             }
 
+            // Traitement des features (décoder la chaîne JSON si nécessaire)
+            $features = [];
+            if (!empty($validatedData['features'])) {
+                // Si c'est déjà un tableau, l'utiliser directement
+                if (is_array($validatedData['features'])) {
+                    $features = $validatedData['features'];
+                } else {
+                    // Sinon, décoder la chaîne JSON
+                    $decodedFeatures = json_decode($validatedData['features'], true);
+                    $features = is_array($decodedFeatures) ? $decodedFeatures : [];
+                }
+            }
+
             // Créer le véhicule
             $vehicle = Vehicle::create([
                 'agency_id' => $user->id,
@@ -100,7 +113,7 @@ class VehicleController extends Controller
                 'color' => $validatedData['color'],
                 'fuel_type' => $validatedData['fuel_type'],
                 'transmission' => $validatedData['transmission'],
-                'features' => $validatedData['features'] ?? [],
+                'features' => $features,
                 'images' => $imagePaths,
                 'maintenance_date' => $validatedData['maintenance_date'],
                 'insurance_expiry' => $validatedData['insurance_expiry'],
@@ -168,7 +181,7 @@ class VehicleController extends Controller
             'color' => 'nullable|string|max:100',
             'fuel_type' => 'required|in:gasoline,diesel,electric,hybrid,lpg',
             'transmission' => 'required|in:manual,automatic,semi_automatic',
-            'features' => 'nullable|array',
+            'features' => 'nullable|string',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'maintenance_date' => 'nullable|date',
             'insurance_expiry' => 'nullable|date',
@@ -200,6 +213,19 @@ class VehicleController extends Controller
                 }
             }
 
+            // Traitement des features (décoder la chaîne JSON si nécessaire)
+            $features = [];
+            if (!empty($validatedData['features'])) {
+                // Si c'est déjà un tableau, l'utiliser directement
+                if (is_array($validatedData['features'])) {
+                    $features = $validatedData['features'];
+                } else {
+                    // Sinon, décoder la chaîne JSON
+                    $decodedFeatures = json_decode($validatedData['features'], true);
+                    $features = is_array($decodedFeatures) ? $decodedFeatures : [];
+                }
+            }
+
             // Mettre à jour le véhicule
             $vehicle->update([
                 'brand' => $validatedData['brand'],
@@ -211,7 +237,7 @@ class VehicleController extends Controller
                 'color' => $validatedData['color'],
                 'fuel_type' => $validatedData['fuel_type'],
                 'transmission' => $validatedData['transmission'],
-                'features' => $validatedData['features'] ?? [],
+                'features' => $features,
                 'images' => $imagePaths,
                 'maintenance_date' => $validatedData['maintenance_date'],
                 'insurance_expiry' => $validatedData['insurance_expiry'],
@@ -315,6 +341,8 @@ class VehicleController extends Controller
         return response()->json(['vehicles' => $vehicles]);
     }
 }
+
+
 
 
 

@@ -2,6 +2,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\NavetteController;
@@ -26,7 +27,18 @@ use App\Http\Controllers\AdminController;
 // Route for the login form (accessible without authentication)
 // Route for showing the login form
 Route::get('/', function () {
-    return redirect()->route('search.index');  // Rediriger vers la page de recherche
+    // Redirection basée sur le rôle de l'utilisateur connecté
+    if (Auth::check()) {
+        switch (Auth::user()->role) {
+            case 'ADMIN':
+                return redirect()->route('admin.dashboard');
+            case 'AGENCE':
+                return redirect()->route('agency.vehicles.index');
+            default:
+                return redirect()->route('search.index');
+        }
+    }
+    return redirect()->route('search.index');  // Rediriger vers la page de recherche pour les non connectés
 })->name('home');
 
 // Routes de recherche (accessibles sans authentification)
@@ -38,6 +50,11 @@ Route::get('/api/search', [SearchController::class, 'apiSearch'])->name('api.sea
 Route::get('/login', function () {
     return view('job.auth.auth');
 })->name('login');
+
+// Route d'inscription (page dédiée)
+Route::get('/signup', function () {
+    return view('job.signup');
+})->name('signup');
 
 // Route for processing the login request
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -73,6 +90,7 @@ Route::group(['middleware' => 'auth'], function () {
     
     // Routes de gestion des véhicules pour les agences
     Route::prefix('agency')->name('agency.')->middleware('agency')->group(function () {
+        Route::get('/', [VehicleController::class, 'index'])->name('vehicles.index'); // Route racine agency
         Route::get('/vehicles', [VehicleController::class, 'index'])->name('vehicles.index');
         Route::get('/vehicles/create', [VehicleController::class, 'create'])->name('vehicles.create');
         Route::post('/vehicles', [VehicleController::class, 'store'])->name('vehicles.store');
@@ -119,6 +137,7 @@ Route::group(['middleware' => 'auth'], function () {
     
     // Routes administrateur
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+        Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard'); // Route racine admin
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/users', [AdminController::class, 'users'])->name('users');
         Route::get('/agencies', [AdminController::class, 'agencies'])->name('agencies');

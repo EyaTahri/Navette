@@ -20,8 +20,26 @@
   </nav>
 
   <div class="container mt-4">
-    <h3 class="mb-3"><i class="fas fa-edit me-2"></i>Modifier réservation #{{ $reservation->id }}</h3>
-    <p class="text-muted">{{ $reservation->navette->departure }} → {{ $reservation->navette->destination }}</p>
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h3 class="mb-0"><i class="fas fa-edit me-2"></i>Modifier la réservation</h3>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p class="mb-2">
+              <strong><i class="fas fa-route text-primary me-2"></i>Trajet :</strong>
+              {{ $reservation->navette->departure }} → {{ $reservation->navette->destination }}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-2">
+              <strong><i class="fas fa-hashtag text-primary me-2"></i>Réservation #{{ $reservation->id }}</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     @if($errors->any())
       <div class="alert alert-danger">
@@ -33,36 +51,78 @@
       </div>
     @endif
 
-    <form method="POST" action="{{ route('reservation.user.update', $reservation->id) }}">
-      @csrf
-      @method('PUT')
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label">Passagers</label>
-          <input type="number" min="1" max="20" name="passenger_count" class="form-control" value="{{ old('passenger_count', $reservation->passenger_count ?? 1) }}" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Téléphone</label>
-          <input type="text" name="contact_phone" class="form-control" value="{{ old('contact_phone', $reservation->contact_phone) }}" required>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">Paiement</label>
-          <select name="payment_method" class="form-select" required>
-            <option value="cash" {{ $reservation->payment_method==='cash'?'selected':'' }}>Espèces</option>
-            <option value="card" {{ $reservation->payment_method==='card'?'selected':'' }}>Carte</option>
-            <option value="paypal" {{ $reservation->payment_method==='paypal'?'selected':'' }}>PayPal</option>
-          </select>
-        </div>
-        <div class="col-12">
-          <label class="form-label">Demandes spéciales</label>
-          <textarea name="special_requests" rows="3" class="form-control" placeholder="Optionnel">{{ old('special_requests', $reservation->special_requests) }}</textarea>
-        </div>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="mb-4"><i class="fas fa-edit text-primary me-2"></i>Détails de la réservation</h4>
+        
+        <form method="POST" action="{{ route('reservation.user.update', $reservation->id) }}">
+          @csrf
+          @method('PUT')
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">
+                <i class="fas fa-map-marker-alt text-primary me-1"></i>Départ
+              </label>
+              <input type="text" name="departure" class="form-control" placeholder="Ville de départ" value="{{ old('departure', $reservation->navette->departure ?? '') }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">
+                <i class="fas fa-map-marker-alt text-danger me-1"></i>Destination
+              </label>
+              <input type="text" name="destination" class="form-control" placeholder="Ville d'arrivée" value="{{ old('destination', $reservation->navette->destination ?? '') }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">
+                <i class="fas fa-calendar-alt text-success me-1"></i>Date
+              </label>
+              <input type="date" name="departure_date" class="form-control" value="{{ old('departure_date', $reservation->navette->departure_datetime ? $reservation->navette->departure_datetime->format('Y-m-d') : '') }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">
+                <i class="fas fa-clock text-warning me-1"></i>Heure
+              </label>
+              <input type="time" name="departure_time" class="form-control" value="{{ old('departure_time', $reservation->navette->departure_datetime ? $reservation->navette->departure_datetime->format('H:i') : '') }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-users text-primary me-1"></i>Passagers
+              </label>
+              <input type="number" min="1" max="20" name="passenger_count" class="form-control" value="{{ old('passenger_count', $reservation->passenger_count ?? 1) }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-phone text-info me-1"></i>Téléphone
+              </label>
+              <input type="text" name="contact_phone" class="form-control" value="{{ old('contact_phone', $reservation->contact_phone) }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-bold">
+                <i class="fas fa-credit-card text-warning me-1"></i>Paiement
+              </label>
+              <select name="payment_method" class="form-select" required>
+                <option value="cash" {{ $reservation->payment_method==='cash'?'selected':'' }}>Espèces</option>
+                <option value="card" {{ $reservation->payment_method==='card'?'selected':'' }}>Carte</option>
+                <option value="paypal" {{ $reservation->payment_method==='paypal'?'selected':'' }}>PayPal</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold">
+                <i class="fas fa-comment-alt text-secondary me-1"></i>Demandes spéciales
+              </label>
+              <textarea name="special_requests" rows="3" class="form-control" placeholder="Optionnel">{{ old('special_requests', $reservation->special_requests) }}</textarea>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mt-4">
+            <a href="{{ route('navettes.reservations') }}" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Annuler
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-2"></i>Enregistrer
+            </button>
+          </div>
+        </form>
       </div>
-      <div class="d-flex justify-content-between mt-4">
-        <a href="{{ route('navettes.reservations') }}" class="btn btn-outline-secondary">Annuler</a>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-      </div>
-    </form>
+    </div>
 
     <form method="POST" class="mt-3" action="{{ route('reservation.user.destroy', $reservation->id) }}" onsubmit="return confirm('Supprimer cette réservation ?')">
       @csrf

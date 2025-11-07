@@ -4,6 +4,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
@@ -43,7 +44,18 @@ class PageController extends Controller
 
     public function category()
     {
-        return view('job.category');
+        $user = Auth::user();
+        $availableVehicles = [];
+        
+        // Si l'utilisateur est une agence, récupérer ses véhicules disponibles
+        if ($user && $user->role === 'AGENCE') {
+            $availableVehicles = \App\Models\Vehicle::where('agency_id', $user->id)
+                ->where('status', 'available')
+                ->where('is_active', true)
+                ->get(['id', 'brand', 'model', 'vehicle_type', 'capacity', 'license_plate']);
+        }
+        
+        return view('job.category', compact('availableVehicles'));
     }
     public function testimonial()
     {

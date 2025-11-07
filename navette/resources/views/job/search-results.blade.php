@@ -199,21 +199,33 @@
                                     <div class="row mb-3">
                                         <div class="col-6">
                                             <small class="text-muted d-block">Véhicule</small>
-                                            <strong>{{ $navette->vehicle_type }}</strong>
+                                            @if($navette->vehicle)
+                                                <strong>{{ $navette->vehicle->brand }} {{ $navette->vehicle->model }}</strong>
+                                            @else
+                                                <strong>{{ $navette->vehicle_type }}</strong>
+                                            @endif
                                         </div>
                                         <div class="col-6">
-                                            <small class="text-muted d-block">Marque</small>
-                                            <strong>{{ $navette->brand }}</strong>
+                                            <small class="text-muted d-block">Capacité</small>
+                                            @if($navette->vehicle)
+                                                <strong>{{ $navette->vehicle->capacity }} places</strong>
+                                            @else
+                                                <strong>{{ $navette->capacity }} places</strong>
+                                            @endif
                                         </div>
                                     </div>
 
-                                    <!-- Capacity and availability -->
+                                    <!-- Additional details -->
                                     <div class="row mb-3">
                                         <div class="col-6">
-                                            <small class="text-muted d-block">Capacité</small>
+                                            <small class="text-muted d-block">Type</small>
                                             <strong>
-                                                <i class="fas fa-users me-1"></i>
-                                                {{ $navette->capacity }} places
+                                                <i class="fas fa-car me-1"></i>
+                                                @if($navette->vehicle)
+                                                    {{ $navette->vehicle->vehicle_type }}
+                                                @else
+                                                    {{ $navette->vehicle_type }}
+                                                @endif
                                             </strong>
                                         </div>
                                         <div class="col-6">

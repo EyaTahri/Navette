@@ -219,12 +219,18 @@
 
                                     <!-- Image du véhicule -->
                                     <div class="vehicle-image">
-                                        @if($vehicle->main_image)
-                                            <img src="{{ Storage::url($vehicle->main_image) }}" 
+                                        @if($vehicle->hasMainImage())
+                                            <img src="{{ $vehicle->main_image_url }}" 
                                                  alt="{{ $vehicle->brand }} {{ $vehicle->model }}" 
-                                                 class="img-fluid" style="max-height: 200px; object-fit: cover;">
+                                                 class="img-fluid" style="max-height: 200px; object-fit: cover;"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="text-center text-muted" style="display: none; align-items: center; justify-content: center; height: 200px;">
+                                                <i class="fas fa-car fa-3x"></i>
+                                            </div>
                                         @else
-                                            <i class="fas fa-car fa-3x"></i>
+                                            <div class="text-center text-muted" style="display: flex; align-items: center; justify-content: center; height: 200px;">
+                                                <i class="fas fa-car fa-3x"></i>
+                                            </div>
                                         @endif
                                     </div>
 
@@ -406,6 +412,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 

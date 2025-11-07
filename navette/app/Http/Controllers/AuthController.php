@@ -99,12 +99,19 @@ class AuthController extends Controller
     $user = User::where('email', $email)->first();
 
     if ($user && Auth::attempt(['email' => $email, 'password' => $password])) {
-        // Log the successful login
-        return redirect()->intended('profile');
+        // Redirection basée sur le rôle de l'utilisateur
+        switch ($user->role) {
+            case 'ADMIN':
+                return redirect()->route('admin.dashboard');
+            case 'AGENCE':
+                return redirect()->route('agency.vehicles.index');
+            default:
+                return redirect()->intended('profile');
+        }
     } else {
         // Authentication failed
         return redirect('/');
-}
+    }
 }
     // Logout a user
     public function logout1(Request $request)

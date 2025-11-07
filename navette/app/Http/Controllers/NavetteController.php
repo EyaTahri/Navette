@@ -15,7 +15,7 @@ class NavetteController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $navettes = Navette::all();
+        $navettes = Navette::with('vehicle')->get();
         return view('job.testimonial', compact('navettes', 'user'));
     }
 
@@ -44,6 +44,7 @@ class NavetteController extends Controller
                 'arrival' => 'required|string|max:255',
                 'departure_datetime' => 'nullable|date',
                 'arrival_datetime' => 'nullable|date|after:departure_datetime',
+                'vehicle_id' => 'required|exists:vehicles,id',
                 'vehicle_type' => 'required|string|max:255',
                 'brand' => 'required|string|max:255',
                 'price_per_person' => 'required|numeric|min:0',
@@ -88,6 +89,7 @@ class NavetteController extends Controller
                 'destination' => 'required|string|max:255',
                 'departure' => 'required|string|max:255',
                 'arrival' => 'required|string|max:255',
+                'vehicle_id' => 'required|exists:vehicles,id',
                 'vehicle_type' => 'required|string|max:255',
                 'brand' => 'required|string|max:255',
                 'price_per_person' => 'required|numeric|min:0',
@@ -139,9 +141,8 @@ class NavetteController extends Controller
         $navette = Navette::findOrFail($id);
         $navette->delete();
 
-    return redirect()->route('navettes.index')->with('success', 'Navette deleted successfully');
-}
-}
+        return redirect()->route('navettes.index')->with('success', 'Navette deleted successfully');
+    }
 
     /**
      * Liste des offres de l'agence

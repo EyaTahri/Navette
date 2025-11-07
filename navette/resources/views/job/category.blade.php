@@ -115,11 +115,24 @@
             <input type="text" id="arrival" name="arrival" class="form-control" placeholder="Lieu d'arrivée" required>
         </div>
         <div class="col-12 col-sm-6">
-            <input type="text" id="vehicle-type" name="vehicle_type" class="form-control" placeholder="Type de véhicule" required>
+            <select id="vehicle_id" name="vehicle_id" class="form-control" required>
+                <option value="">Sélectionner un véhicule</option>
+                @if(isset($availableVehicles) && count($availableVehicles) > 0)
+                    @foreach($availableVehicles as $vehicle)
+                        <option value="{{ $vehicle->id }}" data-brand="{{ $vehicle->brand }}" data-model="{{ $vehicle->model }}" data-type="{{ $vehicle->vehicle_type }}" data-capacity="{{ $vehicle->capacity }}">
+                            {{ $vehicle->brand }} {{ $vehicle->model }} ({{ $vehicle->vehicle_type }}) - {{ $vehicle->license_plate }}
+                        </option>
+                    @endforeach
+                @endif
+            </select>
         </div>
         
         <div class="col-12 col-sm-6">
-            <input type="text" id="brand" name="brand" class="form-control" placeholder="Marque" required>
+            <input type="text" id="vehicle-type" name="vehicle_type" class="form-control" placeholder="Type de véhicule" readonly>
+        </div>
+        
+        <div class="col-12 col-sm-6">
+            <input type="text" id="brand" name="brand" class="form-control" placeholder="Marque" readonly>
         </div>
         <div class="col-12 col-sm-6">
             <input type="number" id="price-per-person" name="price_per_person" class="form-control" placeholder="Prix par personne" required>
@@ -275,6 +288,20 @@ async function calculateTotalPrice() {
 
 
 <script>
+    // Remplir automatiquement les champs quand un véhicule est sélectionné
+    document.getElementById('vehicle_id').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            document.getElementById('vehicle-type').value = selectedOption.dataset.type;
+            document.getElementById('brand').value = selectedOption.dataset.brand;
+            document.getElementById('capacity').value = selectedOption.dataset.capacity;
+        } else {
+            document.getElementById('vehicle-type').value = '';
+            document.getElementById('brand').value = '';
+            document.getElementById('capacity').value = '';
+        }
+    });
+
     function calculatePrice() {
         const pricePerPerson = parseFloat(document.getElementById('price-per-person').value) || 0;
         const vehiclePrice = parseFloat(document.getElementById('vehicle-price').value) || 0;

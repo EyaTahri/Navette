@@ -99,7 +99,7 @@ class SearchController extends Controller
                 break;
         }
 
-        $navettes = $query->paginate(10);
+        $navettes = $query->with('vehicle')->paginate(10);
 
         return view('job.search-results', compact('navettes'));
     }
